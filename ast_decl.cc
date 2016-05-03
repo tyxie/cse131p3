@@ -5,11 +5,20 @@
 #include "ast_decl.h"
 #include "ast_type.h"
 #include "ast_stmt.h"
-#include "symtable.h"        
+#include "symtable.h"
          
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
+}
+
+void Decl::Check()  {
+    if (VarDecl* vd = dynamic_cast<VarDecl*>(this)) {
+        vd->VarDecl::CheckDecl();
+    }
+    else if (FnDecl* fd = dynamic_cast<FnDecl*>(this)) {
+        fd->FnDecl::CheckDecl();
+    }
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t, Expr *e) : Decl(n) {
@@ -40,6 +49,10 @@ void VarDecl::PrintChildren(int indentLevel) {
    if (assignTo) assignTo->Print(indentLevel+1, "(initializer) ");
 }
 
+void VarDecl::CheckDecl()   {
+    //TODO add var declare check implementation
+}
+
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
     Assert(n != NULL && r!= NULL && d != NULL);
     (returnType=r)->SetParent(this);
@@ -67,3 +80,6 @@ void FnDecl::PrintChildren(int indentLevel) {
     if (body) body->Print(indentLevel+1, "(body) ");
 }
 
+void FnDecl::CheckDecl()    {
+    //TODO add fn declare check implementation
+}
