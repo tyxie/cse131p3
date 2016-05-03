@@ -4,16 +4,22 @@
  *  Header file for Symbol table implementation.
  */
 
+#ifndef SYM_H_
+#define SYM_H_
+
 #include <map>
-#include <stack>
+#include <vector>
+#include "ast.h"
 
 using namespace std;
 
-class SymTab    {
+class SymTable  {
     private:
-        stack <map <char*, Node*> > scope_stack;
+        vector <map <char*, Node*> > scope_vector;
     public:
         void push(map<char*, Node*> newscope);
         map<char*, Node*> pop();
         void addsym(char* id, Node* node);
 };
+
+#endif
