@@ -33,10 +33,7 @@ void Program::Check() {
     if ( decls->NumElements() > 0 ) {
       for ( int i = 0; i < decls->NumElements(); ++i ) {
         Decl *d = decls->Nth(i);
-        /* !!! YOUR CODE HERE !!!
-         * Basically you have to make sure that each declaration is 
-         * semantically correct.
-         */
+        d->Check();
       }
     }
 }
