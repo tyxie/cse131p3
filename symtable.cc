@@ -6,21 +6,26 @@
 
 using namespace std;
 
-  void SymTable::push(map<char*, Node*> newscope)
+  SymbolTable::SymbolTable()    {
+      this->push();
+  }
+  
+  void SymbolTable::push()
   {
+    map<char*, Decl*> newscope;
     scope_vector.push_back(newscope); 
   }
 
-  map<char*, Node*> SymTable::pop()
+  map<char*, Decl*> SymbolTable::pop()
   {
-    map<char*, Node*> tempmap = scope_vector.back(); 
+    map<char*, Decl*> tempmap = scope_vector.back(); 
 
     scope_vector.pop_back(); 
 
     return tempmap; 
   }
 
-  void SymTable::addsym(char* id, Node* node)
+  void SymbolTable::addsym(char* id, Decl* node)
   {
-    scope_vector.back().insert(std::pair<char*,Node*>(id,node)); 
+    scope_vector.back().insert(std::pair<char*,Decl*>(id,node)); 
   }

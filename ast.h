@@ -48,10 +48,14 @@ class SymbolTable;
 class MyStack;
 class FnDecl;
 
+
 class Node  {
   protected:
     yyltype *location;
     Node *parent;
+    //Global symbol table
+    //Field symtab MUST be a pointer due to declaration on line 47
+    static SymbolTable * symtab;
 
   public:
     Node(yyltype loc);
@@ -69,8 +73,6 @@ class Node  {
     void Print(int indentLevel, const char *label = NULL); 
     virtual void PrintChildren(int indentLevel)  {}
     
-    //Field symtab MUST be a pointer due to declaration on line 47
-    SymbolTable * symtab;
     virtual void Check() {}
 };
    
