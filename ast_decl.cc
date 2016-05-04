@@ -56,6 +56,7 @@ void VarDecl::PrintChildren(int indentLevel) {
 
 void VarDecl::CheckDecl()   {
     Node::symtab->addsym(this->id->GetName(), this);
+    cout << Node::symtab << endl;
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -87,4 +88,5 @@ void FnDecl::PrintChildren(int indentLevel) {
 
 void FnDecl::CheckDecl()    {
     Node::symtab->addsym(this->id->GetName(), this);
+    cout << Node::symtab << endl;
 }
