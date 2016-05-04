@@ -39,6 +39,7 @@
 
 #include <stdlib.h>   // for NULL
 #include "location.h"
+#include "symtable.h"
 #include <iostream>
 
 using namespace std;
@@ -51,6 +52,9 @@ class Node  {
   protected:
     yyltype *location;
     Node *parent;
+    //Global symbol table
+    //Field symtab MUST be a pointer due to declaration on line 47
+    static SymbolTable * symtab;
 
   public:
     Node(yyltype loc);
@@ -67,7 +71,6 @@ class Node  {
     // subclasses should override PrintChildren() instead
     void Print(int indentLevel, const char *label = NULL); 
     virtual void PrintChildren(int indentLevel)  {}
-
     virtual void Check() {}
 };
    

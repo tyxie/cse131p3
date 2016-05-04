@@ -6,19 +6,24 @@
 #include "ast_type.h"
 #include "ast_stmt.h"
 #include "symtable.h"
-         
+
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
     (id=n)->SetParent(this); 
 }
 
+inline Decl* cast(Decl* d)  {
+    if (VarDecl* vd = dynamic_cast<VarDecl*>(d)) {
+        return vd;
+    }
+    else if (FnDecl* fd = dynamic_cast<FnDecl*>(d)) {
+        return fd;
+    }
+    else return d;
+}
+
 void Decl::Check()  {
-    if (VarDecl* vd = dynamic_cast<VarDecl*>(this)) {
-        vd->VarDecl::CheckDecl();
-    }
-    else if (FnDecl* fd = dynamic_cast<FnDecl*>(this)) {
-        fd->FnDecl::CheckDecl();
-    }
+    cast(this)->CheckDecl();
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t, Expr *e) : Decl(n) {
@@ -50,7 +55,8 @@ void VarDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::CheckDecl()   {
-    //TODO add var declare check implementation
+    Node::symtab->addsym(this->id->GetName(), this);
+    cout << Node::symtab << endl;
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -81,5 +87,6 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void FnDecl::CheckDecl()    {
-    //TODO add fn declare check implementation
+    Node::symtab->addsym(this->id->GetName(), this);
+    cout << Node::symtab << endl;
 }
