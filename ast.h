@@ -39,6 +39,7 @@
 
 #include <stdlib.h>   // for NULL
 #include "location.h"
+#include "symtable.h"
 #include <iostream>
 
 using namespace std;
@@ -67,7 +68,9 @@ class Node  {
     // subclasses should override PrintChildren() instead
     void Print(int indentLevel, const char *label = NULL); 
     virtual void PrintChildren(int indentLevel)  {}
-
+    
+    //Field symtab MUST be a pointer due to declaration on line 47
+    SymbolTable * symtab;
     virtual void Check() {}
 };
    

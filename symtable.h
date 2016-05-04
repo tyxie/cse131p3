@@ -12,8 +12,8 @@
 #include "ast.h"
 
 using namespace std;
-
-class SymTable  {
+class Node;
+class SymbolTable  {
     private:
         vector <map <char*, Node*> > scope_vector;
     public:
