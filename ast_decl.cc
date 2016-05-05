@@ -12,11 +12,19 @@ Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     (id=n)->SetParent(this); 
 }
 
+inline VarDecl* varcast(Decl* d)    {
+    return dynamic_cast<VarDecl*>(d);
+}
+
+inline FnDecl* fncast(Decl* d)    {
+    return dynamic_cast<FnDecl*>(d);
+}
+
 inline Decl* cast(Decl* d)  {
-    if (VarDecl* vd = dynamic_cast<VarDecl*>(d)) {
+    if (VarDecl* vd = varcast(d)) {
         return vd;
     }
-    else if (FnDecl* fd = dynamic_cast<FnDecl*>(d)) {
+    else if (FnDecl* fd = fncast(d)) {
         return fd;
     }
     else return d;
@@ -55,7 +63,17 @@ void VarDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::CheckDecl()   {
-    Node::symtab->addsym(this->id->GetName(), this);
+    bool proceed = true;
+    vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
+    for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
+         if (varcast(*it))   {
+            cout << "ERROR STATE" << endl;
+            proceed = false;
+        }
+    }
+    if (proceed)    {
+        Node::symtab->addsym(this->id->GetName(), this);
+    }
     cout << Node::symtab << endl;
 }
 
@@ -87,6 +105,16 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void FnDecl::CheckDecl()    {
-    Node::symtab->addsym(this->id->GetName(), this);
+    bool proceed = true;
+    vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
+    for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
+         if (fncast(*it))   {
+            cout << "ERROR STATE" << endl;
+            proceed = false;
+        }
+    }
+    if (proceed)    {
+        Node::symtab->addsym(this->id->GetName(), this);
+    }
     cout << Node::symtab << endl;
 }

@@ -12,20 +12,31 @@ using namespace std;
   
   void SymbolTable::push()
   {
-    map<char*, Decl*> newscope;
+    map<string, Decl*> newscope;
     scope_vector.push_back(newscope); 
   }
 
-  map<char*, Decl*> SymbolTable::pop()
+  map<string, Decl*> SymbolTable::pop()
   {
-    map<char*, Decl*> tempmap = scope_vector.back(); 
+    map<string, Decl*> tempmap = scope_vector.back();
 
     scope_vector.pop_back(); 
 
     return tempmap; 
   }
 
-  void SymbolTable::addsym(char* id, Decl* node)
+  void SymbolTable::addsym(string id, Decl* node)
   {
-    scope_vector.back().insert(std::pair<char*,Decl*>(id,node)); 
+    scope_vector.back().insert(std::pair<string,Decl*>(id,node)); 
   }
+
+  vector<Decl*> SymbolTable::findInCurrScope(string key) {
+      map<string, Decl*>::const_iterator it = scope_vector.back().find(key);
+      vector<Decl*> ret;
+      while (it != scope_vector.back().end())   {
+          ret.push_back(it->second);
+          it++;
+      }
+      return ret;
+  }
+
