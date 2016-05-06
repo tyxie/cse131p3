@@ -39,7 +39,9 @@ void Program::Check() {
     }
 }
 
-void Stmt::Check()   {}
+void Stmt::Check()   {
+    this->CheckStmt();    
+}
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     Assert(d != NULL && s != NULL);
@@ -55,7 +57,7 @@ void StmtBlock::PrintChildren(int indentLevel) {
 void StmtBlock::CheckStmt() {
     for (int i = 0; i < stmts->NumElements(); i++)  {
         Stmt* s = stmts->Nth(i);
-        
+        s->Check(); 
     }
 }
 
@@ -68,7 +70,9 @@ void DeclStmt::PrintChildren(int indentLevel) {
     decl->Print(indentLevel+1);
 }
 
-void DeclStmt::CheckStmt() {}
+void DeclStmt::CheckStmt() {
+    decl->Check();    
+}
 
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
     Assert(t != NULL && b != NULL);
