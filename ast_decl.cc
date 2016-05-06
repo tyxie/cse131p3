@@ -64,17 +64,14 @@ void VarDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::CheckDecl()   {
-    bool proceed = true;
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (varcast(*it))   {
             ReportError::DeclConflict(this, *it);
-            proceed = false;
+            return;
         }
     }
-    if (proceed)    {
-        Node::symtab->addsym(this->id->GetName(), this);
-    }
+    Node::symtab->addsym(this->id->GetName(), this);
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -105,15 +102,12 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void FnDecl::CheckDecl()    {
-    bool proceed = true;
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (fncast(*it))   {
             ReportError::DeclConflict(this, *it);
-            proceed = false;
+            return;
         }
     }
-    if (proceed)    {
-        Node::symtab->addsym(this->id->GetName(), this);
-    }
+    Node::symtab->addsym(this->id->GetName(), this);
 }
