@@ -6,6 +6,7 @@
 #include "ast_type.h"
 #include "ast_stmt.h"
 #include "symtable.h"
+#include "errors.h"
 
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
@@ -63,18 +64,14 @@ void VarDecl::PrintChildren(int indentLevel) {
 }
 
 void VarDecl::CheckDecl()   {
-    bool proceed = true;
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (varcast(*it))   {
-            cout << "ERROR STATE" << endl;
-            proceed = false;
+            ReportError::DeclConflict(this, *it);
+            return;
         }
     }
-    if (proceed)    {
-        Node::symtab->addsym(this->id->GetName(), this);
-    }
-    cout << Node::symtab << endl;
+    Node::symtab->addsym(this->id->GetName(), this);
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -105,16 +102,12 @@ void FnDecl::PrintChildren(int indentLevel) {
 }
 
 void FnDecl::CheckDecl()    {
-    bool proceed = true;
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (fncast(*it))   {
-            cout << "ERROR STATE" << endl;
-            proceed = false;
+            ReportError::DeclConflict(this, *it);
+            return;
         }
     }
-    if (proceed)    {
-        Node::symtab->addsym(this->id->GetName(), this);
-    }
-    cout << Node::symtab << endl;
+    Node::symtab->addsym(this->id->GetName(), this);
 }

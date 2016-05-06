@@ -35,8 +35,11 @@ void Program::Check() {
         Decl *d = decls->Nth(i);
         d->Check();
       }
+    cout << Node::symtab << endl;
     }
 }
+
+void Stmt::Check()   {}
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     Assert(d != NULL && s != NULL);
@@ -49,6 +52,13 @@ void StmtBlock::PrintChildren(int indentLevel) {
     stmts->PrintAll(indentLevel+1);
 }
 
+void StmtBlock::CheckStmt() {
+    for (int i = 0; i < stmts->NumElements(); i++)  {
+        Stmt* s = stmts->Nth(i);
+        
+    }
+}
+
 DeclStmt::DeclStmt(Decl *d) {
     Assert(d != NULL);
     (decl=d)->SetParent(this);
@@ -58,11 +68,15 @@ void DeclStmt::PrintChildren(int indentLevel) {
     decl->Print(indentLevel+1);
 }
 
+void DeclStmt::CheckStmt() {}
+
 ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) { 
     Assert(t != NULL && b != NULL);
     (test=t)->SetParent(this); 
     (body=b)->SetParent(this);
 }
+
+void ConditionalStmt::CheckStmt() {}
 
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) { 
     Assert(i != NULL && t != NULL && b != NULL);
@@ -108,6 +122,8 @@ void ReturnStmt::PrintChildren(int indentLevel) {
       expr->Print(indentLevel+1);
 }
 
+void ReturnStmt::CheckStmt() {}
+
 SwitchLabel::SwitchLabel(Expr *l, Stmt *s) {
     Assert(l != NULL && s != NULL);
     (label=l)->SetParent(this);
@@ -125,6 +141,8 @@ void SwitchLabel::PrintChildren(int indentLevel) {
     if (stmt)  stmt->Print(indentLevel+1);
 }
 
+void SwitchLabel::CheckStmt() {}
+
 SwitchStmt::SwitchStmt(Expr *e, List<Stmt *> *c, Default *d) {
     Assert(e != NULL && c != NULL && c->NumElements() != 0 );
     (expr=e)->SetParent(this);
@@ -138,4 +156,6 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     if (cases) cases->PrintAll(indentLevel+1);
     if (def) def->Print(indentLevel+1);
 }
+
+void SwitchStmt::CheckStmt() {}
 
