@@ -6,6 +6,7 @@
 #include "ast_type.h"
 #include "ast_stmt.h"
 #include "symtable.h"
+#include "errors.h"
 
 Decl::Decl(Identifier *n) : Node(*n->GetLocation()) {
     Assert(n != NULL);
@@ -67,14 +68,13 @@ void VarDecl::CheckDecl()   {
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (varcast(*it))   {
-            cout << "ERROR STATE" << endl;
+            ReportError::DeclConflict(this, *it);
             proceed = false;
         }
     }
     if (proceed)    {
         Node::symtab->addsym(this->id->GetName(), this);
     }
-    cout << Node::symtab << endl;
 }
 
 FnDecl::FnDecl(Identifier *n, Type *r, List<VarDecl*> *d) : Decl(n) {
@@ -109,12 +109,11 @@ void FnDecl::CheckDecl()    {
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (fncast(*it))   {
-            cout << "ERROR STATE" << endl;
+            ReportError::DeclConflict(this, *it);
             proceed = false;
         }
     }
     if (proceed)    {
         Node::symtab->addsym(this->id->GetName(), this);
     }
-    cout << Node::symtab << endl;
 }

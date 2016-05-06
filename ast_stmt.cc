@@ -35,6 +35,7 @@ void Program::Check() {
         Decl *d = decls->Nth(i);
         d->Check();
       }
+    cout << Node::symtab << endl;
     }
 }
 
