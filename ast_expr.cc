@@ -9,6 +9,10 @@
 #include "ast_decl.h"
 #include "symtable.h"
 
+void Expr::CheckStmt()   {
+    this->CheckExpr();
+}
+
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
 }
@@ -37,6 +41,15 @@ VarExpr::VarExpr(yyltype loc, Identifier *ident) : Expr(loc) {
 
 void VarExpr::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
+}
+
+void VarExpr::CheckExpr()   {
+    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
+    for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
+        if (VarDecl* vd = dynamic_cast<VarDecl*>(*it))  {
+            this->type = vd->GetType();
+        }
+    }
 }
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -80,7 +93,35 @@ void CompoundExpr::PrintChildren(int indentLevel) {
    op->Print(indentLevel+1);
    if (right) right->Print(indentLevel+1);
 }
-   
+
+void ArithmeticExpr::CheckExpr() { 
+
+}
+
+void RelationalExpr::CheckExpr() { 
+
+}
+
+void EqualityExpr::CheckExpr() { 
+
+}
+
+void LogicalExpr::CheckExpr() { 
+
+}
+
+void AssignExpr::CheckExpr() { 
+
+}
+
+void PostfixExpr::CheckExpr() { 
+
+}
+
+void ConditionalExpr::CheckExpr() { 
+
+}
+
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
   : Expr(Join(c->GetLocation(), f->GetLocation())) {
     Assert(c != NULL && t != NULL && f != NULL);

@@ -25,6 +25,7 @@ class SymbolTable  {
         map<string, Decl*> top() {return scope_vector.back();};
         void addsym(string id, Decl* node);
         vector<Decl*> findInCurrScope(string key);
+        vector<Decl*> findInAnyScope(string key);
         friend ostream& operator<<(ostream& out, SymbolTable *st) {
             out << endl << "-- Base Scope --" << endl << endl;
             for (vector<map <string, Decl*> >::const_iterator it = st->scope_vector.begin(); it != st->scope_vector.end(); ++it)  {
