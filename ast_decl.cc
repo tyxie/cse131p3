@@ -99,9 +99,9 @@ void FnDecl::CheckDecl(vector<Decl*> matches)    {
         }
     }
     Node::symtab->addsym(this->id->GetName(), this);
+    Node::symtab->push();
     if (body)   {
-        Node::symtab->push();
         body->Check();
-        Node::symtab->pop();
     }
+    Node::symtab->pop();
 }
