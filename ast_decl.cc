@@ -20,17 +20,7 @@ inline VarDecl* varcast(Decl* d)    {
 inline FnDecl* fncast(Decl* d)    {
     return dynamic_cast<FnDecl*>(d);
 }
-/*
-inline Decl* cast(Decl* d)  {
-    if (VarDecl* vd = varcast(d)) {
-        return vd;
-    }
-    else if (FnDecl* fd = fncast(d)) {
-        return fd;
-    }
-    else return d;
-}
-*/
+
 void Decl::Check()  {
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     this->CheckDecl(matches);
