@@ -20,7 +20,7 @@ inline VarDecl* varcast(Decl* d)    {
 inline FnDecl* fncast(Decl* d)    {
     return dynamic_cast<FnDecl*>(d);
 }
-
+/*
 inline Decl* cast(Decl* d)  {
     if (VarDecl* vd = varcast(d)) {
         return vd;
@@ -30,9 +30,10 @@ inline Decl* cast(Decl* d)  {
     }
     else return d;
 }
-
+*/
 void Decl::Check()  {
-    cast(this)->CheckDecl();
+    vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
+    this->CheckDecl(matches);
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t, Expr *e) : Decl(n) {
@@ -63,8 +64,7 @@ void VarDecl::PrintChildren(int indentLevel) {
    if (assignTo) assignTo->Print(indentLevel+1, "(initializer) ");
 }
 
-void VarDecl::CheckDecl()   {
-    vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
+void VarDecl::CheckDecl(vector<Decl*> matches)   {
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (varcast(*it))   {
             ReportError::DeclConflict(this, *it);
@@ -101,8 +101,7 @@ void FnDecl::PrintChildren(int indentLevel) {
     if (body) body->Print(indentLevel+1, "(body) ");
 }
 
-void FnDecl::CheckDecl()    {
-    vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
+void FnDecl::CheckDecl(vector<Decl*> matches)    {
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
          if (fncast(*it))   {
             ReportError::DeclConflict(this, *it);
