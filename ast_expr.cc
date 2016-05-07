@@ -15,18 +15,115 @@ void Expr::CheckStmt()   {
     this->CheckExpr();
 }
 */
+/*
+inline ExprError* ee(Expr* e)
+{
+  return dynamic_cast<ExprError*>(e); 
+}
+
+inline EmptyExpr* eme(Expr* e)
+{
+  return dynamic_cast<EmptyExpr*>(e); 
+}
+
+inline IntConstant* ic(Expr* e)
+{
+  return dynamic_cast<IntConstant*>(e);
+}
+
+inline FloatConstant* fc(Expr* e)
+{
+  return dynamic_cast<FloatConstant*>(e);
+}
+
+inline BoolConstant* bc(Expr* e)
+{
+  return dynamic_cast<BoolConstant*>(e); 
+}
+
+inline VarExpr* ve(Expr* e)
+{
+  return dynamic_cast<VarExpr*>(e);
+}
+
+inline CompoundExpr* ce(Expr* e)
+{
+  return dynamic_cast<CompoundExpr*>(e); 
+}
+
+inline ConditionalExpr* conde(Expr* e)
+{
+  return dynamic_cast<ConditionalExpr*>(e); 
+}
+
+inline LValue* lv(Expr* e)
+{
+  return dynamic_cast<LValue*>(e);
+}
+
+inline Call* call(Expr* e)
+{
+  return dynamic_cast<Call*>(e);
+}
+
+inline Expr::exprcast(Expr* e)
+{
+  if(ExprError *exprerror = ee(e))
+  {
+    return exprerror; 
+  }
+
+  else if(EmptyExpr *emptyexpr = eme(e))
+  {
+    return emptyexpr; 
+  }
+  else if(IntConstant *intconstant = ic(e))
+  {
+    return intconstant; 
+  }
+  else if(FloatConstant *floatconstant = fc(e))
+  {
+    return floatconstant; 
+  }
+  else if(BoolConstant *boolconstant = bc(e))
+  {
+    return boolconstant; 
+  }
+  else if(VarExpr* varexpr = ve(e))
+  {
+    return varexpr; 
+  }
+  else if(CompoundExpr* compoundexpr = ce(e))
+  {
+    return compoundexpr; 
+  }
+  else if(ConditionalExpr* condexpr = conde(e))
+  {
+    return condexpr; 
+  }
+  else if(LValue* lvalue = lv(e))
+  {
+    return lvalue; 
+  }
+  else if(Call* tcall = call(e))
+  {
+    return tcall; 
+  } 
+
+  return NULL; 
+}
 
 void Expr::CheckExpr(SymbolTable *st)
 {
-      
+  exprcast(this) -> CheckExpr(st); 
 }
 
-/*
-Type* ExprError::CheckStmt()
+
+Type* ExprError::CheckExpr()
 {
   return Type::errorType;
-}
-*/
+}*/ 
+
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
@@ -60,7 +157,7 @@ void VarExpr::PrintChildren(int indentLevel) {
 
 
 void VarExpr::CheckExpr()   {
-/*    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
+    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
         if (VarDecl* vd = dynamic_cast<VarDecl*>(*it))  {
             this->type = vd->GetType();
@@ -69,7 +166,7 @@ void VarExpr::CheckExpr()   {
     if (this->type == NULL) {
         ReportError::IdentifierNotDeclared(this->id, LookingForVariable);
         this->type = Type::errorType;
-    }*/ 
+    }
 }
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -115,7 +212,7 @@ void CompoundExpr::PrintChildren(int indentLevel) {
 }
 
 void ArithmeticExpr::CheckExpr() {
-/*    //Post-order traversal
+    //Post-order traversal
     left->CheckExpr();
     right->CheckExpr();
 
@@ -145,7 +242,7 @@ void ArithmeticExpr::CheckExpr() {
     }
     else    {
         this->type = Type::errorType;
-    }*/
+    }
 }
 
 void RelationalExpr::CheckExpr() { 
@@ -161,7 +258,7 @@ void LogicalExpr::CheckExpr() {
 }
 
 void AssignExpr::CheckExpr() {
-/*    //Post-order traversal
+    //Post-order traversal
     left->CheckExpr();
     right->CheckExpr();
 
@@ -183,7 +280,7 @@ void AssignExpr::CheckExpr() {
     }
     else    {
         this->type = Type::errorType;
-    }*/ 
+    }
 }
 
 void PostfixExpr::CheckExpr() { 
