@@ -44,7 +44,7 @@ using namespace std;
       vector<Decl*> ret;
       for (vector<map<string, Decl*> >::const_iterator i = scope_vector.begin(); i != scope_vector.end(); i++)  {
         map<string, Decl*>::const_iterator it = i->find(key);
-        while (it != scope_vector.back().end())   {
+        while (it != i->end())   {
           ret.push_back(it->second);
           it++;
         }
