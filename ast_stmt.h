@@ -121,6 +121,7 @@ class IfStmt : public ConditionalStmt
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
     const char *GetPrintNameForNode() { return "IfStmt"; }
     void PrintChildren(int indentLevel);
+    void CheckStmt(); 
 
 };
 
@@ -145,7 +146,7 @@ class ContinueStmt : public Stmt
   public:
     ContinueStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "ContinueStmt"; }
-    void CheckStmt(){}
+    void CheckStmt();
 
 };
 
