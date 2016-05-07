@@ -39,6 +39,40 @@ void Program::Check() {
     }
 }
 
+/*
+inline BreakStmt* b(Stmt* s)
+{
+  return dynamic_cast<BreakStmt*>(s); 
+}
+
+inline SwitchLabel* sl(Stmt* s)
+{
+  return dynamic_cast<SwitchLabel*>(s); 
+}
+
+inline ContinueStmt* cs(Stmt* s)
+{
+  return dynamic_cast<ContinueStmt*>(s); 
+}
+
+inline Stmt* cast()
+{
+  if(BreakStmt *breakstmt = b(this))
+  {
+    return breakstmt; 
+  }
+  else if(SwitchLabel *switchlabel = sl(this))
+  {
+    return switchlabel; 
+  }
+  else if(ContinueStmt *continuestmt = cs(this))
+  {
+    return continuestmt; 
+  }
+
+}
+*/ 
+
 void Stmt::CheckStmt(SymbolTable *st) {
 
   if(BreakStmt *breakstmt = dynamic_cast<BreakStmt*>(this))
@@ -49,14 +83,43 @@ void Stmt::CheckStmt(SymbolTable *st) {
   {
     switchlabel -> CheckStmt(st); 
   }
-  
+  else if(ContinueStmt *continuestmt = dynamic_cast<ContinueStmt*>(this))
+  {
+    continuestmt -> CheckStmt(); 
+  }
+  else if(ReturnStmt *returnstmt = dynamic_cast<ReturnStmt*>(this))
+  {
+    returnstmt -> CheckStmt(); 
+  }
+  else if(IfStmt *ifstmt = dynamic_cast<IfStmt*>(this))
+  {
+    ifstmt -> CheckStmt(); 
+  }
 }
 
+void ReturnStmt::CheckStmt()
+{
+  if(expr != NULL)
+  {
+   // expr -> CheckStmt(); 
+  }
+}
+
+void IfStmt::CheckStmt()
+{
+
+}
+
+void ContinueStmt::CheckStmt()
+{
+  //check if inside the scope of a loop, if not throw outsideloop error
+}
 
 void BreakStmt::CheckStmt()
 {
-	
+  //check if inside the scope of a loop, if not throw outsideloop error	
 }
+
 void SwitchLabel::CheckStmt(SymbolTable *st)
 {
   if(Case *c = dynamic_cast<Case*>(this))
@@ -167,7 +230,6 @@ void ReturnStmt::PrintChildren(int indentLevel) {
       expr->Print(indentLevel+1);
 }
 
-void ReturnStmt::CheckStmt() {}
 
 SwitchLabel::SwitchLabel(Expr *l, Stmt *s) {
     Assert(l != NULL && s != NULL);
