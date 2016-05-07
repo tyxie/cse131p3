@@ -40,3 +40,15 @@ using namespace std;
       return ret;
   }
 
+    vector<Decl*> SymbolTable::findInAnyScope(string key) {
+      vector<Decl*> ret;
+      for (vector<map<string, Decl*> >::const_iterator i = scope_vector.begin(); i != scope_vector.end(); i++)  {
+        map<string, Decl*>::const_iterator it = i->find(key);
+        while (it != i->end())   {
+          ret.push_back(it->second);
+          it++;
+        }
+      }
+      return ret;
+  }
+

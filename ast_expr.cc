@@ -8,6 +8,11 @@
 #include "ast_type.h"
 #include "ast_decl.h"
 #include "symtable.h"
+#include "errors.h"
+
+void Expr::CheckStmt()   {
+    this->CheckExpr();
+}
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
@@ -37,6 +42,19 @@ VarExpr::VarExpr(yyltype loc, Identifier *ident) : Expr(loc) {
 
 void VarExpr::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
+}
+
+void VarExpr::CheckExpr()   {
+    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
+    for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
+        if (VarDecl* vd = dynamic_cast<VarDecl*>(*it))  {
+            this->type = vd->GetType();
+        }
+    }
+    if (this->type == NULL) {
+        ReportError::IdentifierNotDeclared(this->id, LookingForVariable);
+        this->type = Type::errorType;
+    }
 }
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -80,7 +98,87 @@ void CompoundExpr::PrintChildren(int indentLevel) {
    op->Print(indentLevel+1);
    if (right) right->Print(indentLevel+1);
 }
-   
+
+void ArithmeticExpr::CheckExpr() {
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
+
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+    if (!(ltype->IsNumeric() || ltype->IsError()))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        left->setType(Type::errorType);
+    }
+    if (!(rtype->IsNumeric() || rtype->IsError()))  {
+        ReportError::IncompatibleOperand(op, rtype);
+        right->setType(Type::errorType);
+    }
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+        this->type = Type::errorType;
+        return;
+    }
+
+    //Find the non-error type (if any)
+    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
+    if (expr_type == Type::intType) {
+        this->type = Type::intType;
+    }
+    else if (expr_type == Type::floatType)  {
+        this->type = Type::floatType;
+    }
+    else    {
+        this->type = Type::errorType;
+    }
+}
+
+void RelationalExpr::CheckExpr() { 
+
+}
+
+void EqualityExpr::CheckExpr() { 
+
+}
+
+void LogicalExpr::CheckExpr() { 
+
+}
+
+void AssignExpr::CheckExpr() {
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
+
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+        this->type = Type::errorType;
+        return;
+    }
+
+    //Find the non-error type (if any)
+    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
+    if (expr_type == Type::intType) {
+        this->type = Type::intType;
+    }
+    else if (expr_type == Type::floatType)  {
+        this->type = Type::floatType;
+    }
+    else    {
+        this->type = Type::errorType;
+    }
+}
+
+void PostfixExpr::CheckExpr() { 
+
+}
+
+void ConditionalExpr::CheckExpr() { 
+
+}
+
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
   : Expr(Join(c->GetLocation(), f->GetLocation())) {
     Assert(c != NULL && t != NULL && f != NULL);
