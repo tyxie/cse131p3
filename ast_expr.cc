@@ -10,12 +10,15 @@
 #include "symtable.h"
 #include "errors.h"
 
+/*
 void Expr::CheckStmt()   {
     this->CheckExpr();
 }
+*/
 
-void Expr::CheckStmt(SymbolTable *st)
-{    
+void Expr::CheckExpr(SymbolTable *st)
+{
+      
 }
 
 /*
@@ -55,8 +58,9 @@ void VarExpr::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
 }
 
+
 void VarExpr::CheckExpr()   {
-    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
+/*    vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
         if (VarDecl* vd = dynamic_cast<VarDecl*>(*it))  {
             this->type = vd->GetType();
@@ -65,7 +69,7 @@ void VarExpr::CheckExpr()   {
     if (this->type == NULL) {
         ReportError::IdentifierNotDeclared(this->id, LookingForVariable);
         this->type = Type::errorType;
-    }
+    }*/ 
 }
 
 Operator::Operator(yyltype loc, const char *tok) : Node(loc) {
@@ -111,7 +115,7 @@ void CompoundExpr::PrintChildren(int indentLevel) {
 }
 
 void ArithmeticExpr::CheckExpr() {
-    //Post-order traversal
+/*    //Post-order traversal
     left->CheckExpr();
     right->CheckExpr();
 
@@ -141,7 +145,7 @@ void ArithmeticExpr::CheckExpr() {
     }
     else    {
         this->type = Type::errorType;
-    }
+    }*/
 }
 
 void RelationalExpr::CheckExpr() { 
@@ -157,7 +161,7 @@ void LogicalExpr::CheckExpr() {
 }
 
 void AssignExpr::CheckExpr() {
-    //Post-order traversal
+/*    //Post-order traversal
     left->CheckExpr();
     right->CheckExpr();
 
@@ -179,7 +183,7 @@ void AssignExpr::CheckExpr() {
     }
     else    {
         this->type = Type::errorType;
-    }
+    }*/ 
 }
 
 void PostfixExpr::CheckExpr() { 

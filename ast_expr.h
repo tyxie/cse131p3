@@ -23,14 +23,14 @@ void yyerror(const char *msg);
 class Expr : public Stmt 
 {
   protected:
-    Type* type = NULL;
+    //Type* type = NULL;
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
     void CheckStmt();
-    virtual void CheckExpr() = 0;
-    Type* getType() {return type;}
-    void setType(Type* t)  {type = t;}
+    virtual void CheckExpr(SymbolTable *st);
+   // Type* getType() {return type;}
+   // void setType(Type* t)  {type = t;}
     friend std::ostream& operator<< (std::ostream& stream, Expr * expr) {
         return stream << expr->GetPrintNameForNode();
     }
@@ -63,7 +63,7 @@ class IntConstant : public Expr
     IntConstant(yyltype loc, int val);
     const char *GetPrintNameForNode() { return "IntConstant"; }
     void PrintChildren(int indentLevel);
-    void CheckExpr() {this->type = Type::intType;}
+    void CheckExpr() {/*this->type = Type::intType;*/}
 };
 
 class FloatConstant: public Expr 
@@ -75,7 +75,7 @@ class FloatConstant: public Expr
     FloatConstant(yyltype loc, double val);
     const char *GetPrintNameForNode() { return "FloatConstant"; }
     void PrintChildren(int indentLevel);
-    void CheckExpr() {this->type = Type::floatType;}
+    void CheckExpr() {/*this->type = Type::floatType;*/}
 };
 
 class BoolConstant : public Expr 
@@ -87,7 +87,7 @@ class BoolConstant : public Expr
     BoolConstant(yyltype loc, bool val);
     const char *GetPrintNameForNode() { return "BoolConstant"; }
     void PrintChildren(int indentLevel);
-    void CheckExpr() {this->type = Type::boolType;}
+    void CheckExpr() {/*this->type = Type::boolType;*/}
 };
 
 class VarExpr : public Expr
