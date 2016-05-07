@@ -64,6 +64,8 @@ class Node  {
     yyltype *GetLocation()   { return location; }
     void SetParent(Node *p)  { parent = p; }
     Node *GetParent()        { return parent; }
+    static int loops; 
+    static int switches;
 
     virtual const char *GetPrintNameForNode() = 0;
     

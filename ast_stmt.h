@@ -40,8 +40,8 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
-     void Check();
-     virtual void CheckStmt() = 0;
+    // void Check();
+     virtual void CheckStmt(SymbolTable *st);
 };
 
 class StmtBlock : public Stmt 
@@ -79,7 +79,7 @@ class ConditionalStmt : public Stmt
   public:
     ConditionalStmt() : Stmt(), test(NULL), body(NULL) {}
     ConditionalStmt(Expr *testExpr, Stmt *body);
-    void CheckStmt();
+    void CheckStmt(SymbolTable *st);
 
 };
 
@@ -88,6 +88,7 @@ class LoopStmt : public ConditionalStmt
   public:
     LoopStmt(Expr *testExpr, Stmt *body)
             : ConditionalStmt(testExpr, body) {}
+   void CheckStmt(SymbolTable *st); 
 };
 
 class ForStmt : public LoopStmt 
@@ -99,6 +100,7 @@ class ForStmt : public LoopStmt
     ForStmt(Expr *init, Expr *test, Expr *step, Stmt *body);
     const char *GetPrintNameForNode() { return "ForStmt"; }
     void PrintChildren(int indentLevel);
+    void CheckStmt(SymbolTable *st); 
 
 };
 
@@ -108,7 +110,7 @@ class WhileStmt : public LoopStmt
     WhileStmt(Expr *test, Stmt *body) : LoopStmt(test, body) {}
     const char *GetPrintNameForNode() { return "WhileStmt"; }
     void PrintChildren(int indentLevel);
-
+    void CheckStmt(SymbolTable *st); 
 };
 
 class IfStmt : public ConditionalStmt 
@@ -121,6 +123,7 @@ class IfStmt : public ConditionalStmt
     IfStmt(Expr *test, Stmt *thenBody, Stmt *elseBody);
     const char *GetPrintNameForNode() { return "IfStmt"; }
     void PrintChildren(int indentLevel);
+    void CheckStmt(SymbolTable *st); 
 
 };
 
@@ -136,7 +139,7 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "BreakStmt"; }
-    void CheckStmt(){}
+    void CheckStmt(SymbolTable *st); 
 
 };
 
@@ -145,7 +148,7 @@ class ContinueStmt : public Stmt
   public:
     ContinueStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "ContinueStmt"; }
-    void CheckStmt(){}
+    void CheckStmt(SymbolTable *st);
 
 };
 
@@ -158,7 +161,7 @@ class ReturnStmt : public Stmt
     ReturnStmt(yyltype loc, Expr *expr = NULL);
     const char *GetPrintNameForNode() { return "ReturnStmt"; }
     void PrintChildren(int indentLevel);
-    void CheckStmt();
+    void CheckStmt(SymbolTable *st);
 
 };
 
@@ -173,8 +176,7 @@ class SwitchLabel : public Stmt
     SwitchLabel(Expr *label, Stmt *stmt);
     SwitchLabel(Stmt *stmt);
     void PrintChildren(int indentLevel);
-    void CheckStmt();
-
+    virtual void CheckStmt(SymbolTable *st);
 };
 
 class Case : public SwitchLabel
@@ -183,6 +185,7 @@ class Case : public SwitchLabel
     Case() : SwitchLabel() {}
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
+    virtual void CheckStmt(SymbolTable *st); 
 };
 
 class Default : public SwitchLabel
@@ -190,6 +193,7 @@ class Default : public SwitchLabel
   public:
     Default(Stmt *stmt) : SwitchLabel(stmt) {}
     const char *GetPrintNameForNode() { return "Default"; }
+    virtual void CheckStmt(SymbolTable *st); 
 };
 
 class SwitchStmt : public Stmt
@@ -204,7 +208,7 @@ class SwitchStmt : public Stmt
     SwitchStmt(Expr *expr, List<Stmt*> *cases, Default *def);
     virtual const char *GetPrintNameForNode() { return "SwitchStmt"; }
     void PrintChildren(int indentLevel);
-    void CheckStmt();
+    void CheckStmt(SymbolTable *st);
 
 };
 
