@@ -40,7 +40,7 @@ void Program::Check() {
 }
 
 void Stmt::Check()   {
-    this->CheckStmt();    
+    this->CheckStmt();
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -57,7 +57,7 @@ void StmtBlock::PrintChildren(int indentLevel) {
 void StmtBlock::CheckStmt() {
     for (int i = 0; i < stmts->NumElements(); i++)  {
         Stmt* s = stmts->Nth(i);
-        s->Check(); 
+        s->Check();
     }
 }
 
