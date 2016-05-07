@@ -23,12 +23,12 @@ void yyerror(const char *msg);
 class Expr : public Stmt 
 {
   protected:
-    Type* type = NULL;
+    Type* type;
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
     void CheckStmt();
-    virtual void CheckExpr(SymbolTable *st);
+    virtual void CheckExpr() = 0;
     Type* getType() {return type;}
     void setType(Type* t)  {type = t;}
     friend std::ostream& operator<< (std::ostream& stream, Expr * expr) {

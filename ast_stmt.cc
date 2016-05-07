@@ -170,7 +170,7 @@ inline LoopStmt* loopcast(LoopStmt* ls)
 
 void LoopStmt::CheckStmt(SymbolTable *st)
 {  
-  loopcast(this) -> CheckStmt(st);  
+  loopcast(this) -> CheckStmt(st); 
 }
 
 void ForStmt::CheckStmt(SymbolTable *st)
@@ -180,18 +180,18 @@ void ForStmt::CheckStmt(SymbolTable *st)
 
   if(init != NULL)
   {
-    init -> CheckExpr(st);
+    init -> CheckExpr();
   }
 
   //TODO: test whether or not test is a boolean type if not throw error
   if(test != NULL)
   {
-    test -> CheckExpr(st);
+    test -> CheckExpr();
   }
 
   if(step != NULL)
   {
-    step -> CheckExpr(st); 
+    step -> CheckExpr(); 
   }
 
   if(body != NULL)
@@ -212,7 +212,7 @@ void WhileStmt::CheckStmt(SymbolTable *st)
   //TODO: Check if test is of type boolean if not throw error
   if(test != NULL)
   {
-    test -> CheckExpr(st); 
+    test -> CheckExpr(); 
   }
 
   if(body != NULL)
@@ -233,7 +233,7 @@ void IfStmt::CheckStmt(SymbolTable *st)
 {
   if(test != NULL)
   {
-    test -> CheckExpr(st); 
+    test -> CheckExpr(); 
   }
   
   // TODO ADD the IFSTMT UNDER STMT as well  
@@ -248,7 +248,7 @@ void ReturnStmt::CheckStmt(SymbolTable *st)
 {
   if(expr != NULL)
   {
-    expr -> CheckExpr(st); 
+    expr -> CheckExpr(); 
   }
 }
 
@@ -278,7 +278,7 @@ void SwitchStmt::CheckStmt(SymbolTable *st)
 
   if(expr != NULL)
   {
-    expr -> CheckExpr(st); 
+    expr -> CheckExpr(); 
   }
 
   if(cases != NULL)
@@ -330,7 +330,7 @@ void Case::CheckStmt(SymbolTable *st)
 {
   if(label != NULL && stmt != NULL)
   {
-      label -> CheckExpr(st); 
+      label -> CheckExpr(); 
       stmt -> CheckStmt(st); 
   }
 }

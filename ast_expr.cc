@@ -10,11 +10,11 @@
 #include "symtable.h"
 #include "errors.h"
 
-/*
+
 void Expr::CheckStmt()   {
     this->CheckExpr();
 }
-*/
+
 /*
 inline ExprError* ee(Expr* e)
 {
