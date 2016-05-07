@@ -25,7 +25,7 @@ class Expr : public Stmt
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
-    void CheckStmt() {}
+    void CheckStmt(SymbolTable *st); 
     friend std::ostream& operator<< (std::ostream& stream, Expr * expr) {
         return stream << expr->GetPrintNameForNode();
     }
@@ -36,6 +36,7 @@ class ExprError : public Expr
   public:
     ExprError() : Expr() { yyerror(this->GetPrintNameForNode()); }
     const char *GetPrintNameForNode() { return "ExprError"; }
+    Type* CheckStmt(); 
 };
 
 /* This node type is used for those places where an expression is optional.

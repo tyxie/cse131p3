@@ -39,7 +39,52 @@ void Program::Check() {
     }
 }
 
-void Stmt::Check()   {}
+void Stmt::CheckStmt(SymbolTable *st) {
+
+  if(BreakStmt *breakstmt = dynamic_cast<BreakStmt*>(this))
+  {
+    breakstmt -> CheckStmt(); 
+  }
+  else if(SwitchLabel *switchlabel = dynamic_cast<SwitchLabel*>(this))
+  {
+    switchlabel -> CheckStmt(st); 
+  }
+  
+}
+
+
+void BreakStmt::CheckStmt()
+{
+	
+}
+void SwitchLabel::CheckStmt(SymbolTable *st)
+{
+  if(Case *c = dynamic_cast<Case*>(this))
+  {
+    c -> CheckStmt(st); 
+  }
+  else if(Default *d = dynamic_cast<Default*>(this))
+  {
+    d -> CheckStmt(st); 
+  }
+}
+
+void Case::CheckStmt(SymbolTable *st)
+{
+  if(label != NULL && stmt != NULL)
+  {
+    label -> CheckStmt(st);
+    stmt -> CheckStmt(st); 
+  }
+}
+
+void Default::CheckStmt(SymbolTable *st)
+{
+  if(stmt != NULL)
+  {
+    stmt -> CheckStmt(st); 
+  }
+}
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
     Assert(d != NULL && s != NULL);
@@ -141,7 +186,6 @@ void SwitchLabel::PrintChildren(int indentLevel) {
     if (stmt)  stmt->Print(indentLevel+1);
 }
 
-void SwitchLabel::CheckStmt() {}
 
 SwitchStmt::SwitchStmt(Expr *e, List<Stmt *> *c, Default *d) {
     Assert(e != NULL && c != NULL && c->NumElements() != 0 );

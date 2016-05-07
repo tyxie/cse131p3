@@ -9,6 +9,17 @@
 #include "ast_decl.h"
 #include "symtable.h"
 
+void Expr::CheckStmt(SymbolTable *st)
+{    
+}
+
+/*
+Type* ExprError::CheckStmt()
+{
+  return Type::errorType;
+}
+*/
+
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
 }

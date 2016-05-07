@@ -40,8 +40,8 @@ class Stmt : public Node
   public:
      Stmt() : Node() {}
      Stmt(yyltype loc) : Node(loc) {}
-     void Check();
-     virtual void CheckStmt() = 0;
+    // void Check();
+     virtual void CheckStmt(SymbolTable *st);
 };
 
 class StmtBlock : public Stmt 
@@ -136,7 +136,7 @@ class BreakStmt : public Stmt
   public:
     BreakStmt(yyltype loc) : Stmt(loc) {}
     const char *GetPrintNameForNode() { return "BreakStmt"; }
-    void CheckStmt(){}
+    void CheckStmt(); 
 
 };
 
@@ -173,8 +173,7 @@ class SwitchLabel : public Stmt
     SwitchLabel(Expr *label, Stmt *stmt);
     SwitchLabel(Stmt *stmt);
     void PrintChildren(int indentLevel);
-    void CheckStmt();
-
+    virtual void CheckStmt(SymbolTable *st);
 };
 
 class Case : public SwitchLabel
@@ -183,6 +182,7 @@ class Case : public SwitchLabel
     Case() : SwitchLabel() {}
     Case(Expr *label, Stmt *stmt) : SwitchLabel(label, stmt) {}
     const char *GetPrintNameForNode() { return "Case"; }
+    virtual void CheckStmt(SymbolTable *st); 
 };
 
 class Default : public SwitchLabel
@@ -190,6 +190,7 @@ class Default : public SwitchLabel
   public:
     Default(Stmt *stmt) : SwitchLabel(stmt) {}
     const char *GetPrintNameForNode() { return "Default"; }
+    virtual void CheckStmt(SymbolTable *st); 
 };
 
 class SwitchStmt : public Stmt
