@@ -39,8 +39,308 @@ void Program::Check() {
     }
 }
 
-void Stmt::Check()   {
-    this->CheckStmt();
+
+inline BreakStmt* bs(Stmt* s)
+{
+  return dynamic_cast<BreakStmt*>(s); 
+}
+
+inline SwitchStmt* ss(Stmt* s)
+{
+  return dynamic_cast<SwitchStmt*>(s); 
+}
+
+inline SwitchLabel* sl(Stmt* s)
+{
+  return dynamic_cast<SwitchLabel*>(s); 
+}
+
+inline ContinueStmt* cs(Stmt* s)
+{
+  return dynamic_cast<ContinueStmt*>(s); 
+}
+
+inline ReturnStmt* rs(Stmt* s)
+{
+  return dynamic_cast<ReturnStmt*>(s); 
+}
+
+inline ConditionalStmt* cos(Stmt* s)
+{
+  return dynamic_cast<ConditionalStmt*>(s);
+}
+
+inline StmtBlock* sb(Stmt* s)
+{
+  return dynamic_cast<StmtBlock*>(s);
+}
+
+inline DeclStmt* ds(Stmt* s)
+{
+  return dynamic_cast<DeclStmt*>(s); 
+}
+
+inline Stmt* cast(Stmt* s)
+{
+  if(BreakStmt *breakstmt = bs(s))
+  {
+    return breakstmt; 
+  }
+  else if(SwitchStmt *switchstmt = ss(s))
+  {
+    return switchstmt; 
+  }
+  else if(SwitchLabel *switchlabel = sl(s))
+  {
+    return switchlabel; 
+  }
+  else if(ContinueStmt *continuestmt = cs(s))
+  {
+    return continuestmt; 
+  }
+  else if(ReturnStmt *returnstmt = rs(s))
+  {
+    return returnstmt; 
+  }
+  else if(ConditionalStmt *condstmt = cos(s))
+  {
+    return condstmt; 
+  }
+  else if(StmtBlock* stmtblock = sb(s))
+  {
+    //return stmtblock; 
+  }
+  else if(DeclStmt* declstmt = ds(s))
+  {
+    //return declstmt; 
+  }
+  return NULL; 
+}
+
+void Stmt::CheckStmt(SymbolTable *st) 
+{
+  cast(this)->CheckStmt(st); 
+}
+
+inline LoopStmt* ls(ConditionalStmt* cons)
+{
+  return dynamic_cast<LoopStmt*>(cons); 
+}
+
+inline IfStmt* ifs (ConditionalStmt *cons)
+{
+  return dynamic_cast<IfStmt*>(cons);
+}
+
+inline ConditionalStmt* cscast(ConditionalStmt *cons)
+{
+  if(LoopStmt *loopstmt = ls(cons))
+  {
+    return loopstmt; 
+  }
+  else if(IfStmt *ifstmt = ifs(cons))
+  {
+    return ifstmt; 
+  }
+  return NULL; 
+}
+
+inline ForStmt* fs (LoopStmt *loop)
+{
+  return dynamic_cast<ForStmt*>(loop);
+}
+
+inline WhileStmt* ws (LoopStmt *loop)
+{
+  return dynamic_cast<WhileStmt*>(loop);
+}
+
+inline LoopStmt* loopcast(LoopStmt* ls)
+{
+  if(ForStmt *forstmt = fs(ls))
+  {
+    return forstmt; 
+  }
+  else if(WhileStmt *whilestmt = ws(ls))
+  {
+    return whilestmt; 
+  }
+  return NULL; 
+}
+
+void LoopStmt::CheckStmt(SymbolTable *st)
+{  
+  loopcast(this) -> CheckStmt(st); 
+}
+
+void ForStmt::CheckStmt(SymbolTable *st)
+{
+  st->push();
+  Node::loops++; 
+
+  if(init != NULL)
+  {
+    init -> CheckExpr();
+  }
+
+  //TODO: test whether or not test is a boolean type if not throw error
+  if(test != NULL)
+  {
+    test -> CheckExpr();
+  }
+
+  if(step != NULL)
+  {
+    step -> CheckExpr(); 
+  }
+
+  if(body != NULL)
+  {
+    body -> CheckStmt(st); 
+  }
+
+  Node::loops--;
+  st->pop(); 
+}
+
+void WhileStmt::CheckStmt(SymbolTable *st)
+{
+
+  st->push();
+  Node::loops++;
+
+  //TODO: Check if test is of type boolean if not throw error
+  if(test != NULL)
+  {
+    test -> CheckExpr(); 
+  }
+
+  if(body != NULL)
+  {
+    body -> CheckStmt(st); 
+  }
+
+  Node::loops--;
+  st->pop(); 
+}
+
+void ConditionalStmt::CheckStmt(SymbolTable *st)
+{
+  cscast(this) -> CheckStmt(st); 
+}
+
+void IfStmt::CheckStmt(SymbolTable *st)
+{
+  if(test != NULL)
+  {
+    test -> CheckExpr(); 
+  }
+  
+  // TODO ADD the IFSTMT UNDER STMT as well  
+  if(body != NULL)
+  {
+    body -> CheckStmt(st); 
+  }
+}
+
+
+void ReturnStmt::CheckStmt(SymbolTable *st)
+{
+  if(expr != NULL)
+  {
+    expr -> CheckExpr(); 
+  }
+}
+
+void ContinueStmt::CheckStmt(SymbolTable *st)
+{
+  //check if inside the scope of a loop, if not throw outsideloop error
+  if(Node::loops == 0)
+  {
+    ReportError::ContinueOutsideLoop(this); 
+  }
+
+}
+
+void BreakStmt::CheckStmt(SymbolTable *st)
+{
+  //check if inside the scope of a loop, if not throw outsideloop error	
+  if(Node::loops == 0 && Node::switches == 0)
+  {
+    ReportError::BreakOutsideLoop(this); 
+  }
+}
+
+void SwitchStmt::CheckStmt(SymbolTable *st)
+{
+  st->push(); 
+  Node::switches++;
+
+  if(expr != NULL)
+  {
+    expr -> CheckExpr(); 
+  }
+
+  if(cases != NULL)
+  {
+    for(int numCases = 0; numCases < (cases->NumElements()); numCases++)
+    {
+      cases->Nth(numCases)->CheckStmt(st); 
+    }
+  }
+
+  if(def != NULL)
+  {
+    def -> CheckStmt(st); 
+  }
+
+  Node::switches--;
+  st->pop(); 
+}
+
+inline Case* c(SwitchLabel* swla)
+{
+  return dynamic_cast<Case*>(swla); 
+}
+
+inline Default* d(SwitchLabel* swla)
+{
+  return dynamic_cast<Default*>(swla); 
+}
+
+inline SwitchLabel* slcast(SwitchLabel* swla)
+{
+  if(Case *ca = c(swla))
+  {
+    return ca; 
+  }
+  else if(Default *de = d(swla))
+  {
+    return de; 
+  }
+  return NULL; 
+}
+
+void SwitchLabel::CheckStmt(SymbolTable *st)
+{
+  slcast(this) -> CheckStmt(st);  
+}
+
+void Case::CheckStmt(SymbolTable *st)
+{
+  if(label != NULL && stmt != NULL)
+  {
+      label -> CheckExpr(); 
+      stmt -> CheckStmt(st); 
+  }
+}
+
+void Default::CheckStmt(SymbolTable *st)
+{
+  if(stmt != NULL)
+  {
+    stmt -> CheckStmt(st); 
+  }
 }
 
 StmtBlock::StmtBlock(List<VarDecl*> *d, List<Stmt*> *s) {
@@ -80,7 +380,7 @@ ConditionalStmt::ConditionalStmt(Expr *t, Stmt *b) {
     (body=b)->SetParent(this);
 }
 
-void ConditionalStmt::CheckStmt() {}
+//void ConditionalStmt::CheckStmt() {}
 
 ForStmt::ForStmt(Expr *i, Expr *t, Expr *s, Stmt *b): LoopStmt(t, b) { 
     Assert(i != NULL && t != NULL && b != NULL);
@@ -126,7 +426,6 @@ void ReturnStmt::PrintChildren(int indentLevel) {
       expr->Print(indentLevel+1);
 }
 
-void ReturnStmt::CheckStmt() {}
 
 SwitchLabel::SwitchLabel(Expr *l, Stmt *s) {
     Assert(l != NULL && s != NULL);
@@ -145,7 +444,6 @@ void SwitchLabel::PrintChildren(int indentLevel) {
     if (stmt)  stmt->Print(indentLevel+1);
 }
 
-void SwitchLabel::CheckStmt() {}
 
 SwitchStmt::SwitchStmt(Expr *e, List<Stmt *> *c, Default *d) {
     Assert(e != NULL && c != NULL && c->NumElements() != 0 );
@@ -160,6 +458,4 @@ void SwitchStmt::PrintChildren(int indentLevel) {
     if (cases) cases->PrintAll(indentLevel+1);
     if (def) def->Print(indentLevel+1);
 }
-
-void SwitchStmt::CheckStmt() {}
 

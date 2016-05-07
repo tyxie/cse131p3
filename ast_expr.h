@@ -23,7 +23,7 @@ void yyerror(const char *msg);
 class Expr : public Stmt 
 {
   protected:
-    Type* type = NULL;
+    Type* type;
   public:
     Expr(yyltype loc) : Stmt(loc) {}
     Expr() : Stmt() {}
