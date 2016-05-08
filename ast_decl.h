@@ -85,6 +85,7 @@ class FnDecl : public Decl
 
     Type *GetType() const { return returnType; }
     List<VarDecl*> *GetFormals() {return formals;}
+    Stmt *GetBody() { return body;}
     void CheckDecl(vector<Decl*>);
     void CheckDecl(); 
 };

@@ -51,11 +51,18 @@ void FnDecl::CheckDecl()
   //vector<Expr*> returnExprs; 
  // bool hasReturn = false; 
 
+  Node::symtab->push(); 
+ 
   if(formals != NULL)
   {
     for(int numFormals = 0; numFormals < (formals->NumElements()); numFormals++)
     {
       formals->Nth(numFormals)-> CheckDecl(); 
+
+      if(!formals->Nth(numFormals)->GetType()->IsEquivalentTo(Type::errorType))
+      {
+        Node::symtab-> addsym(formals->Nth(numFormals)->GetIdentifier()->GetName(), formals->Nth(numFormals));
+      } 
     }
   }
 
@@ -81,9 +88,9 @@ void FnDecl::CheckDecl()
 
   if(body != NULL)
   {
-    Node::symtab->push();
+//    Node::symtab->push();
     body -> Check();
-    Node::symtab->pop();
+//    Node::symtab->pop();
   /*  if(StmtBlock *block = dynamic_cast<StmtBlock*>(body))
     {
       if(block->stmts!=NULL)
@@ -99,6 +106,8 @@ void FnDecl::CheckDecl()
       }
     }*/
   }  
+
+  Node::symtab->pop(); 
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t, Expr *e) : Decl(n) {
@@ -131,11 +140,12 @@ void VarDecl::PrintChildren(int indentLevel) {
 
 void VarDecl::CheckDecl(vector<Decl*> matches)   {
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
-         if (varcast(*it))   {
+         if (varcast(*it) || fncast(*it))   {
             ReportError::DeclConflict(this, *it);
             return;
         }
     }
+ //   cout<< "added "<< this->GetType() << this->id->GetName() << this->GetLocation()->first_line << endl; 
     Node::symtab->addsym(this->id->GetName(), this);
 }
 
