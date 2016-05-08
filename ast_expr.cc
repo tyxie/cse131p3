@@ -507,19 +507,51 @@ void Call::CheckExpr()
   {
     base->CheckExpr(); 
   } 
-
+  
   if(field != NULL)
   {
     vector<Decl*> matches = Node::symtab->findInAnyScope(field->GetName());
-
- //   cout<<field->GetName()<<endl; 
+    vector<FnDecl*> matchingFn;  
 
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    
     {
-  //    cout<<"IN HERE"<<endl; 
-
          if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
 	 { 
+           matchingFn.push_back(fd); 
+    	 }
+    }
+
+    if(matchingFn.size() == 0)
+    {
+      ReportError::NotAFunction(field); 
+    }
+    else if(matchingFn.size() == 1)
+    {
+        FnDecl *fd = matchingFn.back(); 
+
+	if(fd->GetBody() != NULL)  
+        {
+           if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
+           {
+              ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
+						this->actuals->NumElements()); 
+           } 
+           else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
+           {
+              ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
+						this->actuals->NumElements()); 
+           } 
+
+        }
+    }
+    else
+    {
+  
+    }
+
+
+/*
+           found++; 
            if(matches.size() == 1)
            {
 	     if(fd->GetBody() != NULL)  
@@ -529,10 +561,16 @@ void Call::CheckExpr()
                  ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
 						this->actuals->NumElements()); 
                } 
+               else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
+               {
+                 ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
+						this->actuals->NumElements()); 
+               } 
+
              }
            }
-	}
-    }
+*/ 
+
   }
 }
 
