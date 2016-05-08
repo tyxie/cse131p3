@@ -268,6 +268,46 @@ void ConditionalExpr::CheckExpr() {
     }
 }
 
+void FieldAccess::CheckExpr()   {
+    base->CheckExpr();
+    Type * btype = base->getType();
+    bool skip = false;
+    if (!(btype->IsVector() || btype->IsError()))  {
+        ReportError::InaccessibleSwizzle(field, base);
+        skip = true;
+    }
+
+    string swizzleset("xyzw");
+    string swizzle(field->GetName());
+    for (int i = 0; i < swizzle.size(); i++) {
+        if (swizzleset.find(swizzle[i]) == string::npos)    {
+            ReportError::InvalidSwizzle(field, base);
+        }
+        else if (!skip)   {
+            char dim = swizzle[i];
+            switch (dim)    {
+                case 'w':
+                    if (btype->IsEquivalentTo(Type::vec3Type))  {
+                        ReportError::SwizzleOutOfBound(field, base);
+                        break;
+                    }
+                case 'z':
+                    if (btype->IsEquivalentTo(Type::vec2Type))  {
+                        ReportError::SwizzleOutOfBound(field, base);
+                    }
+                break;
+
+                default:
+                break;
+            }
+        }
+    }
+    if (swizzle.size() > 4) {
+        ReportError::OversizedVector(field, base);
+        this->type = Type::errorType;
+    }
+}
+
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
   : Expr(Join(c->GetLocation(), f->GetLocation())) {
     Assert(c != NULL && t != NULL && f != NULL);
