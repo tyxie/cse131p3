@@ -15,7 +15,6 @@ int Node::switches = 0;
 bool Node::needReturn = false; 
 FnDecl* Node::returnType = NULL;  
 
-
 Node::Node(yyltype loc) {
     location = new yyltype(loc);
     parent = NULL;
