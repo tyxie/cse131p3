@@ -438,7 +438,7 @@ void FieldAccess::CheckExpr()   {
 
 void ArrayAccess::CheckExpr()   {
     base->CheckExpr();
-    ArrayType* at = dynamic_cast<ArrayType*>(base);
+    ArrayType* at = dynamic_cast<ArrayType*>(base->getType());
     if (at == NULL) {
         if (VarExpr* ve = dynamic_cast<VarExpr*>(base)) {
             ReportError::NotAnArray(ve->GetIdentifier());
