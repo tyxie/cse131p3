@@ -41,7 +41,10 @@ void VarDecl::CheckDecl()
 
   if(assignTo != NULL)
   {
-    assignTo -> CheckExpr(); 
+    assignTo -> CheckExpr();
+    if (!(assignTo->getType()->IsConvertibleTo(this->GetType())))    {
+        ReportError::InvalidInitialization(this->id, this->GetType(), assignTo->getType());
+    }
   }
 }
 
