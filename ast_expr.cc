@@ -394,18 +394,20 @@ void FieldAccess::CheckExpr()   {
     for (int i = 0; i < swizzle.size(); i++) {
         if (swizzleset.find(swizzle[i]) == string::npos)    {
             ReportError::InvalidSwizzle(field, base);
+            break;
         }
-        else if (!skip)   {
+        if (!skip)   {
             char dim = swizzle[i];
             switch (dim)    {
                 case 'w':
                     if (btype->IsEquivalentTo(Type::vec3Type))  {
                         ReportError::SwizzleOutOfBound(field, base);
-                        break;
+                        return;
                     }
                 case 'z':
                     if (btype->IsEquivalentTo(Type::vec2Type))  {
                         ReportError::SwizzleOutOfBound(field, base);
+                        return;
                     }
                 break;
 
@@ -417,6 +419,20 @@ void FieldAccess::CheckExpr()   {
     if (swizzle.size() > 4) {
         ReportError::OversizedVector(field, base);
         this->type = Type::errorType;
+    }
+}
+
+void ArrayAccess::CheckExpr()   {
+    base->CheckExpr();
+    ArrayType* at = dynamic_cast<ArrayType*>(base);
+    if (at == NULL) {
+        if (VarExpr* ve = dynamic_cast<VarExpr*>(base)) {
+            ReportError::NotAnArray(ve->GetIdentifier());
+            this->type = base->getType();
+        }
+    }
+    else    {
+        this->type = at->GetElemType();
     }
 }
 
