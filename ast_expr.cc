@@ -106,42 +106,105 @@ void ArithmeticExpr::CheckExpr() {
 
     Type * ltype = left->getType();
     Type * rtype = right->getType();
+
     if (!(ltype->IsNumeric() || ltype->IsError()))  {
         ReportError::IncompatibleOperand(op, ltype);
         left->setType(Type::errorType);
     }
+
     if (!(rtype->IsNumeric() || rtype->IsError()))  {
         ReportError::IncompatibleOperand(op, rtype);
         right->setType(Type::errorType);
     }
-    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
-        ReportError::IncompatibleOperands(op, ltype, rtype);
-        this->type = Type::errorType;
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = ltype;
         return;
     }
+    //Otherwise we know this expr will be an errortype
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
 
-    //Find the non-error type (if any)
-    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
-    if (expr_type == Type::intType) {
-        this->type = Type::intType;
-    }
-    else if (expr_type == Type::floatType)  {
-        this->type = Type::floatType;
-    }
-    else    {
-        this->type = Type::errorType;
-    }
+    this->type = Type::errorType;
 }
 
 void RelationalExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
 
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    if (!(ltype->IsNumeric() || ltype->IsError()))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        left->setType(Type::errorType);
+    }
+
+    if (!(rtype->IsNumeric() || rtype->IsError()))  {
+        ReportError::IncompatibleOperand(op, rtype);
+        right->setType(Type::errorType);
+    }
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = (ltype->IsEquivalentTo(Type::errorType)) ? Type::errorType : Type::boolType;
+        return;
+    }
+
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
+    
+    this->type = Type::errorType;
 }
 
 void EqualityExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
 
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = (ltype->IsEquivalentTo(Type::errorType)) ? Type::errorType : Type::boolType;
+        return;
+    }
+
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
+    
+    this->type = Type::errorType;
 }
 
 void LogicalExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
+
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    if (ltype->IsEquivalentTo(Type::boolType) && rtype->IsEquivalentTo(Type::boolType)) {
+        this->type = Type::boolType;
+        return;
+    }
+
+    if (!(ltype->IsConvertibleTo(Type::boolType)))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        left->setType(Type::errorType);
+    }
+
+    if (!(rtype->IsConvertibleTo(Type::boolType)))  {
+        ReportError::IncompatibleOperand(op, rtype);
+        right->setType(Type::errorType);
+    }
+
+    this->type = Type::errorType;
 
 }
 
@@ -152,23 +215,18 @@ void AssignExpr::CheckExpr() {
 
     Type * ltype = left->getType();
     Type * rtype = right->getType();
-    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
-        ReportError::IncompatibleOperands(op, ltype, rtype);
-        this->type = Type::errorType;
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = ltype;
         return;
     }
 
-    //Find the non-error type (if any)
-    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
-    if (expr_type == Type::intType) {
-        this->type = Type::intType;
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
     }
-    else if (expr_type == Type::floatType)  {
-        this->type = Type::floatType;
-    }
-    else    {
-        this->type = Type::errorType;
-    }
+    
+    this->type = Type::errorType;
 }
 
 void PostfixExpr::CheckExpr() { 
