@@ -38,7 +38,7 @@ void Program::Check() {
     cout << Node::symtab << endl;
     }
 }
-
+/*
 inline BreakStmt* bs(Stmt* s)
 {
   return dynamic_cast<BreakStmt*>(s); 
@@ -115,12 +115,12 @@ inline Stmt* cast(Stmt* s)
   }
   return NULL; 
 }
-
-void Stmt::CheckStmt(SymbolTable *st) 
+*/
+void Stmt::Check() 
 {
-  cast(this)->CheckStmt(st); 
+  this->CheckStmt(); 
 }
-
+/*
 inline LoopStmt* ls(ConditionalStmt* cons)
 {
   return dynamic_cast<LoopStmt*>(cons); 
@@ -167,14 +167,14 @@ inline LoopStmt* loopcast(LoopStmt* ls)
   return NULL; 
 }
 
-void LoopStmt::CheckStmt(SymbolTable *st)
+void LoopStmt::CheckStmt()
 {  
-  loopcast(this) -> CheckStmt(st); 
+  loopcast(this) -> CheckStmt(); 
 }
-
-void ForStmt::CheckStmt(SymbolTable *st)
+*/
+void ForStmt::CheckStmt()
 {
-  st->push();
+  Node::symtab->push();
   Node::loops++; 
 
   if(init != NULL)
@@ -195,17 +195,17 @@ void ForStmt::CheckStmt(SymbolTable *st)
 
   if(body != NULL)
   {
-    body -> CheckStmt(st); 
+    body -> CheckStmt(); 
   }
 
   Node::loops--;
-  st->pop(); 
+  Node::symtab->pop(); 
 }
 
-void WhileStmt::CheckStmt(SymbolTable *st)
+void WhileStmt::CheckStmt()
 {
 
-  st->push();
+  Node::symtab->push();
   Node::loops++;
 
   //TODO: Check if test is of type boolean if not throw error
@@ -216,19 +216,19 @@ void WhileStmt::CheckStmt(SymbolTable *st)
 
   if(body != NULL)
   {
-    body -> CheckStmt(st); 
+    body -> CheckStmt(); 
   }
 
   Node::loops--;
-  st->pop(); 
+  Node::symtab->pop(); 
 }
-
-void ConditionalStmt::CheckStmt(SymbolTable *st)
+/*
+void ConditionalStmt::CheckStmt()
 {
-  cscast(this) -> CheckStmt(st); 
+  cscast(this) -> CheckStmt(); 
 }
-
-void IfStmt::CheckStmt(SymbolTable *st)
+*/
+void IfStmt::CheckStmt()
 {
   if(test != NULL)
   {
@@ -238,12 +238,12 @@ void IfStmt::CheckStmt(SymbolTable *st)
   // TODO ADD the IFSTMT UNDER STMT as well  
   if(body != NULL)
   {
-    body -> CheckStmt(st); 
+    body -> CheckStmt(); 
   }
 }
 
 
-void ReturnStmt::CheckStmt(SymbolTable *st)
+void ReturnStmt::CheckStmt()
 {
   if(expr != NULL)
   {
@@ -251,7 +251,7 @@ void ReturnStmt::CheckStmt(SymbolTable *st)
   }
 }
 
-void ContinueStmt::CheckStmt(SymbolTable *st)
+void ContinueStmt::CheckStmt()
 {
   //check if inside the scope of a loop, if not throw outsideloop error
   if(Node::loops == 0)
@@ -261,7 +261,7 @@ void ContinueStmt::CheckStmt(SymbolTable *st)
 
 }
 
-void BreakStmt::CheckStmt(SymbolTable *st)
+void BreakStmt::CheckStmt()
 {
   //check if inside the scope of a loop, if not throw outsideloop error	
   if(Node::loops == 0 && Node::switches == 0)
@@ -270,9 +270,9 @@ void BreakStmt::CheckStmt(SymbolTable *st)
   }
 }
 
-void SwitchStmt::CheckStmt(SymbolTable *st)
+void SwitchStmt::CheckStmt()
 {
-  st->push(); 
+  Node::symtab->push(); 
   Node::switches++;
 
   if(expr != NULL)
@@ -284,19 +284,19 @@ void SwitchStmt::CheckStmt(SymbolTable *st)
   {
     for(int numCases = 0; numCases < (cases->NumElements()); numCases++)
     {
-      cases->Nth(numCases)->CheckStmt(st); 
+      cases->Nth(numCases)->CheckStmt(); 
     }
   }
 
   if(def != NULL)
   {
-    def -> CheckStmt(st); 
+    def -> CheckStmt(); 
   }
 
   Node::switches--;
-  st->pop(); 
+  Node::symtab->pop(); 
 }
-
+/*
 inline Case* c(SwitchLabel* swla)
 {
   return dynamic_cast<Case*>(swla); 
@@ -320,25 +320,25 @@ inline SwitchLabel* slcast(SwitchLabel* swla)
   return NULL; 
 }
 
-void SwitchLabel::CheckStmt(SymbolTable *st)
+void SwitchLabel::CheckStmt()
 {
-  slcast(this) -> CheckStmt(st);  
+  slcast(this) -> CheckStmt();  
 }
-
-void Case::CheckStmt(SymbolTable *st)
+*/
+void Case::CheckStmt()
 {
   if(label != NULL && stmt != NULL)
   {
       label -> CheckExpr(); 
-      stmt -> CheckStmt(st); 
+      stmt -> CheckStmt(); 
   }
 }
 
-void Default::CheckStmt(SymbolTable *st)
+void Default::CheckStmt()
 {
   if(stmt != NULL)
   {
-    stmt -> CheckStmt(st); 
+    stmt -> CheckStmt(); 
   }
 }
 
