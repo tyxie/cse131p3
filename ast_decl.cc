@@ -179,13 +179,10 @@ void FnDecl::PrintChildren(int indentLevel) {
 void FnDecl::CheckDecl(vector<Decl*> matches)    {
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
 
-         if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
-	 {
-	   if(fd->body != NULL && this->body != NULL)  
-           {
+        if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
+	{
             ReportError::DeclConflict(this, *it);
             return;
-           }
         }
         else if(VarDecl *varde = dynamic_cast<VarDecl*>(*it))
         {

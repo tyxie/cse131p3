@@ -544,31 +544,55 @@ void Call::CheckExpr()
   {
     base->CheckExpr(); 
   } 
-
+  
   if(field != NULL)
   {
-    vector<Decl*> matches = Node::symtab->findInAnyScope(field->GetName());
 
- //   cout<<field->GetName()<<endl; 
+    for(int y = 0; y < actuals->NumElements(); y++)
+    {
+      actuals->Nth(y)->CheckExpr(); 
+    }
+
+    vector<Decl*> matches = Node::symtab->findInAnyScope(field->GetName());
+    vector<FnDecl*> matchingFn;  
 
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    
     {
-  //    cout<<"IN HERE"<<endl; 
-
          if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
 	 { 
-           if(matches.size() == 1)
-           {
-	     if(fd->GetBody() != NULL)  
-             {
-               if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
-               {
-                 ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
+           matchingFn.push_back(fd); 
+    	 }
+    }
+
+    if(matchingFn.size() == 0)
+    {
+      ReportError::NotAFunction(field); 
+    }
+    else if(matchingFn.size() == 1)
+    {
+        FnDecl *fd = matchingFn.back(); 
+
+        if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
+        {
+           ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
 						this->actuals->NumElements()); 
-               } 
-             }
-           }
-	}
+        } 
+        else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
+        {
+           ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
+						this->actuals->NumElements()); 
+        }
+        else
+        {
+          for(int x = 0; x < this->actuals->NumElements(); x++)
+          {
+            if(!fd->GetFormals()->Nth(x)->GetType()->IsEquivalentTo(this->actuals->Nth(x)->getType()))
+            {
+              ReportError::FormalsTypeMismatch(this->field, x, fd->GetFormals()->Nth(x)->GetType(), 
+						this->actuals->Nth(x)->getType()); 
+            }
+          }
+       }
     }
   }
 }
