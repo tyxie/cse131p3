@@ -310,6 +310,20 @@ void FieldAccess::CheckExpr()   {
     }
 }
 
+void ArrayAccess::CheckExpr()   {
+    base->CheckExpr();
+    ArrayType* at = dynamic_cast<ArrayType*>(base);
+    if (at == NULL) {
+        if (VarExpr* ve = dynamic_cast<VarExpr*>(base)) {
+            ReportError::NotAnArray(ve->GetIdentifier());
+            this->type = base->getType();
+        }
+    }
+    else    {
+        this->type = at->GetElemType();
+    }
+}
+
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
   : Expr(Join(c->GetLocation(), f->GetLocation())) {
     Assert(c != NULL && t != NULL && f != NULL);
