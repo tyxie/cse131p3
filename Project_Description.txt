@@ -1,3 +1,16 @@
 I decided that it would be best to not allow errorTypes to propagate as long as
 we can make a guess about the intended type.  This will allow us to catch as
 many errors in a single compilation as possible
+
+ConditionalExprs wll not be set to error type if only the condition expression
+is erroneous.  This is because it may still be perfectly clear which type the
+expression is meant to be, as long as the true and false expressions are of the
+same type.
+
+Additionally, our analyzer does NOT run checks on the true/false expressions of a
+conditional statement because there is no such error to report in errors.cc.  Know that
+this decision was deliberate.
+
+However, we decided to still set conditional statements to errorType when the
+intended type of the expression cannot be semantically deduced. We still want to
+avoid unnecessary error cascading wherever possible.

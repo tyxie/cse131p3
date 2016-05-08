@@ -10,120 +10,9 @@
 #include "symtable.h"
 #include "errors.h"
 
-
 void Expr::CheckStmt()   {
     this->CheckExpr();
 }
-
-/*
-inline ExprError* ee(Expr* e)
-{
-  return dynamic_cast<ExprError*>(e); 
-}
-
-inline EmptyExpr* eme(Expr* e)
-{
-  return dynamic_cast<EmptyExpr*>(e); 
-}
-
-inline IntConstant* ic(Expr* e)
-{
-  return dynamic_cast<IntConstant*>(e);
-}
-
-inline FloatConstant* fc(Expr* e)
-{
-  return dynamic_cast<FloatConstant*>(e);
-}
-
-inline BoolConstant* bc(Expr* e)
-{
-  return dynamic_cast<BoolConstant*>(e); 
-}
-
-inline VarExpr* ve(Expr* e)
-{
-  return dynamic_cast<VarExpr*>(e);
-}
-
-inline CompoundExpr* ce(Expr* e)
-{
-  return dynamic_cast<CompoundExpr*>(e); 
-}
-
-inline ConditionalExpr* conde(Expr* e)
-{
-  return dynamic_cast<ConditionalExpr*>(e); 
-}
-
-inline LValue* lv(Expr* e)
-{
-  return dynamic_cast<LValue*>(e);
-}
-
-inline Call* call(Expr* e)
-{
-  return dynamic_cast<Call*>(e);
-}
-
-inline Expr::exprcast(Expr* e)
-{
-  if(ExprError *exprerror = ee(e))
-  {
-    return exprerror; 
-  }
-
-  else if(EmptyExpr *emptyexpr = eme(e))
-  {
-    return emptyexpr; 
-  }
-  else if(IntConstant *intconstant = ic(e))
-  {
-    return intconstant; 
-  }
-  else if(FloatConstant *floatconstant = fc(e))
-  {
-    return floatconstant; 
-  }
-  else if(BoolConstant *boolconstant = bc(e))
-  {
-    return boolconstant; 
-  }
-  else if(VarExpr* varexpr = ve(e))
-  {
-    return varexpr; 
-  }
-  else if(CompoundExpr* compoundexpr = ce(e))
-  {
-    return compoundexpr; 
-  }
-  else if(ConditionalExpr* condexpr = conde(e))
-  {
-    return condexpr; 
-  }
-  else if(LValue* lvalue = lv(e))
-  {
-    return lvalue; 
-  }
-  else if(Call* tcall = call(e))
-  {
-    return tcall; 
-  } 
-
-  return NULL; 
-}
-
-void Expr::CheckExpr(SymbolTable *st)
-{
-  exprcast(this) -> CheckExpr(st); 
-}
-
-
-Type* ExprError::CheckExpr()
-{
-  return Type::errorType;
-}*/ 
-
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
@@ -154,7 +43,6 @@ VarExpr::VarExpr(yyltype loc, Identifier *ident) : Expr(loc) {
 void VarExpr::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
 }
-
 
 void VarExpr::CheckExpr()   {
     vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
@@ -342,11 +230,42 @@ void AssignExpr::CheckExpr() {
 }
 
 void PostfixExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
 
+    Type * ltype = left->getType();
+
+    if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        this->setType(Type::errorType);
+    }
+    else    {
+        this->type = ltype;
+    }
 }
 
 void ConditionalExpr::CheckExpr() { 
+    //Post-order traversal
+    cond->CheckExpr();
+    trueExpr->CheckExpr();
+    falseExpr->CheckExpr();
 
+    Type * ctype = cond->getType();
+    Type * ttype = trueExpr->getType();
+    Type * ftype = falseExpr->getType();
+
+    if (!(ctype->IsEquivalentTo(Type::boolType)))  {
+        ReportError::TestNotBoolean(cond);
+    }
+    //The TAs sais this would not be tested
+
+    //If we have two matching valid types, we know we're error free
+    if (ttype->IsEquivalentTo(ftype))   {
+        this->type = (ttype->IsEquivalentTo(Type::errorType)) ? Type::errorType : ttype;
+    }
+    else    {
+        this->type = Type::errorType;
+    }
 }
 
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
