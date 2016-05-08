@@ -185,11 +185,21 @@ void ForStmt::CheckStmt()
   //TODO: test whether or not test is a boolean type if not throw error
   if(test != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }  
+
     test -> CheckExpr();
   }
 
   if(step != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }  
+
     step -> CheckExpr(); 
   }
 
@@ -230,8 +240,15 @@ void ConditionalStmt::CheckStmt()
 */
 void IfStmt::CheckStmt()
 {
+  Node::symtab->push();
+
   if(test != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }    
+ 
     test -> CheckExpr(); 
   }
   
@@ -240,6 +257,14 @@ void IfStmt::CheckStmt()
   {
     body -> CheckStmt(); 
   }
+  Node::symtab->pop();
+
+  Node::symtab->push();
+  if(elseBody != NULL)
+  {
+    elseBody -> CheckStmt(); 
+  }
+  Node::symtab->pop(); 
 }
 
 
