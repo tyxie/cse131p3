@@ -282,18 +282,20 @@ void FieldAccess::CheckExpr()   {
     for (int i = 0; i < swizzle.size(); i++) {
         if (swizzleset.find(swizzle[i]) == string::npos)    {
             ReportError::InvalidSwizzle(field, base);
+            break;
         }
-        else if (!skip)   {
+        if (!skip)   {
             char dim = swizzle[i];
             switch (dim)    {
                 case 'w':
                     if (btype->IsEquivalentTo(Type::vec3Type))  {
                         ReportError::SwizzleOutOfBound(field, base);
-                        break;
+                        return;
                     }
                 case 'z':
                     if (btype->IsEquivalentTo(Type::vec2Type))  {
                         ReportError::SwizzleOutOfBound(field, base);
+                        return;
                     }
                 break;
 
