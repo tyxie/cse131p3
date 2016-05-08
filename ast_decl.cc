@@ -81,7 +81,7 @@ void FnDecl::CheckDecl()
 
   if(body != NULL)
   {
-    body -> CheckStmt(Node::symtab);
+    body -> CheckStmt();
 
   /*  if(StmtBlock *block = dynamic_cast<StmtBlock*>(body))
     {
