@@ -36,6 +36,7 @@ class Decl : public Node
     Identifier *GetIdentifier() const { return id; }
     friend ostream& operator<<(ostream& out, Decl *d) { return out << d->id; }
     void Check();
+    virtual void CheckDecl() = 0; 
     virtual void CheckDecl(vector<Decl*>) = 0;
 
 };
@@ -56,6 +57,7 @@ class VarDecl : public Decl
     void PrintChildren(int indentLevel);
     Type *GetType() const { return type; }
     void CheckDecl(vector<Decl*>);
+    void CheckDecl(); 
 };
 
 class VarDeclError : public VarDecl
@@ -84,6 +86,7 @@ class FnDecl : public Decl
     Type *GetType() const { return returnType; }
     List<VarDecl*> *GetFormals() {return formals;}
     void CheckDecl(vector<Decl*>);
+    void CheckDecl(); 
 };
 
 class FormalsError : public FnDecl

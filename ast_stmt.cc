@@ -185,11 +185,21 @@ void ForStmt::CheckStmt()
   //TODO: test whether or not test is a boolean type if not throw error
   if(test != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }  
+
     test -> CheckExpr();
   }
 
   if(step != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }  
+
     step -> CheckExpr(); 
   }
 
@@ -230,8 +240,15 @@ void ConditionalStmt::CheckStmt()
 */
 void IfStmt::CheckStmt()
 {
+  Node::symtab->push();
+
   if(test != NULL)
   {
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    }    
+ 
     test -> CheckExpr(); 
   }
   
@@ -240,6 +257,14 @@ void IfStmt::CheckStmt()
   {
     body -> CheckStmt(); 
   }
+  Node::symtab->pop();
+
+  Node::symtab->push();
+  if(elseBody != NULL)
+  {
+    elseBody -> CheckStmt(); 
+  }
+  Node::symtab->pop(); 
 }
 
 
@@ -248,6 +273,21 @@ void ReturnStmt::CheckStmt()
   if(expr != NULL)
   {
     expr -> CheckExpr(); 
+
+    if(!expr->getType()->IsEquivalentTo(returnType->GetType()))
+    {
+      ReportError::ReturnMismatch(this, expr->getType(), returnType->GetType());
+    }
+  }
+  else
+  {
+    if(Node::needReturn)
+    {
+       
+       ReportError::ReturnMismatch(this, Type::voidType, returnType->GetType());     
+      //needs a return value but return does not provide one
+      /// ReportError::ReturnMismatch(); 
+    }
   }
 }
 
@@ -357,6 +397,20 @@ void StmtBlock::CheckStmt() {
     for (int i = 0; i < stmts->NumElements(); i++)  {
         Stmt* s = stmts->Nth(i);
         s->Check();
+    }
+
+    int numReturns = 0; 
+    for(int x = 0; x < stmts->NumElements(); x++)
+    {
+      if(ReturnStmt *rest = dynamic_cast<ReturnStmt*>(stmts->Nth(x)))
+      {
+        numReturns++; 
+      }
+    }
+
+    if(Node::needReturn && numReturns == 0)
+    {
+      ReportError::ReturnMissing(Node::returnType);  
     }
 }
 
