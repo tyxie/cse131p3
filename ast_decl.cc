@@ -81,8 +81,9 @@ void FnDecl::CheckDecl()
 
   if(body != NULL)
   {
-    body -> CheckStmt();
-
+    Node::symtab->push();
+    body -> Check();
+    Node::symtab->pop();
   /*  if(StmtBlock *block = dynamic_cast<StmtBlock*>(body))
     {
       if(block->stmts!=NULL)
@@ -178,9 +179,9 @@ void FnDecl::CheckDecl(vector<Decl*> matches)    {
         }
     }
     Node::symtab->addsym(this->id->GetName(), this);
-    Node::symtab->push();
-    if (body)   {
+/*    if (body)   {
+        Node::symtab->push();
         body->Check();
-    }
-    Node::symtab->pop();
+        Node::symtab->pop();
+    }*/
 }

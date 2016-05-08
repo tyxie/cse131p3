@@ -223,7 +223,7 @@ class FieldAccess : public LValue
     FieldAccess(Expr *base, Identifier *field); //ok to pass NULL base
     const char *GetPrintNameForNode() { return "FieldAccess"; }
     void PrintChildren(int indentLevel);
-    void CheckExpr() {}
+    void CheckExpr();
 };
 
 /* Like field access, call is used both for qualified base.field()
