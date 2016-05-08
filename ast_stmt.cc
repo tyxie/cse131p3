@@ -250,6 +250,13 @@ void ReturnStmt::CheckStmt(SymbolTable *st)
   {
     expr -> CheckExpr(); 
   }
+  else 
+  {
+    if(Node::needReturn)
+    {
+      ReportError::ReturnMissing()
+    }
+  }
 }
 
 void ContinueStmt::CheckStmt(SymbolTable *st)

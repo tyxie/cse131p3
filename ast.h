@@ -66,6 +66,8 @@ class Node  {
     Node *GetParent()        { return parent; }
     static int loops; 
     static int switches;
+    static bool needReturn;
+    static FnDecl* returnType; 
 
     virtual const char *GetPrintNameForNode() = 0;
     

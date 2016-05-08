@@ -21,9 +21,83 @@ inline FnDecl* fncast(Decl* d)    {
     return dynamic_cast<FnDecl*>(d);
 }
 
+
+
 void Decl::Check()  {
+
+    this->CheckDecl(); 
     vector<Decl*> matches = Node::symtab->findInCurrScope(this->id->GetName());
     this->CheckDecl(matches);
+}
+
+void VarDecl::CheckDecl()
+{
+/*  if(type != NULL)
+  {
+  }
+  if(typeq != NULL)
+  {
+  } */ 
+
+  if(assignTo != NULL)
+  {
+    assignTo -> CheckExpr(); 
+  }
+}
+
+void FnDecl::CheckDecl()
+{
+
+  //vector<Expr*> returnExprs; 
+ // bool hasReturn = false; 
+
+  if(formals != NULL)
+  {
+    for(int numFormals = 0; numFormals < (formals->NumElements()); numFormals++)
+    {
+      formals->Nth(numFormals)-> CheckDecl(); 
+    }
+  }
+
+  if(returnType != NULL)
+  {
+    if(!returnType->IsEquivalentTo(Type::voidType))
+    {
+      Node::needReturn = true; 
+      Node::returnType = this; 
+     /* //signal a return is needed
+      if(!hasReturn)
+      {
+        ReportError::ReturnMissing(this); 
+      }*/
+    }
+    else
+    {
+      Node::needReturn = false; 
+      Node::returnType = NULL; 
+      //IT IS A VOID FUNCTION, CAN't HAVE RETURN VALUES; 
+    }
+  }
+
+  if(body != NULL)
+  {
+    body -> CheckStmt(Node::symtab);
+
+  /*  if(StmtBlock *block = dynamic_cast<StmtBlock*>(body))
+    {
+      if(block->stmts!=NULL)
+      {
+        for(int rts = 0; rts < (block->stmts->NumElements()); rts++)
+        {
+          if(ReturnStmt *restmt = dynamic_cast<ReturnStmt*>((block->stmts)->Nth(rts)))
+          {
+            hasReturn = true; 
+            //returnExprs.push_back(restmt->expr);
+          }
+        }
+      }
+    }*/
+  }  
 }
 
 VarDecl::VarDecl(Identifier *n, Type *t, Expr *e) : Decl(n) {
@@ -93,9 +167,14 @@ void FnDecl::PrintChildren(int indentLevel) {
 
 void FnDecl::CheckDecl(vector<Decl*> matches)    {
     for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    {
-         if (fncast(*it))   {
+
+         if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
+	 {
+	   if(fd->body != NULL && this->body != NULL)  
+           {
             ReportError::DeclConflict(this, *it);
             return;
+           }
         }
     }
     Node::symtab->addsym(this->id->GetName(), this);

@@ -49,7 +49,7 @@ class StmtBlock : public Stmt
   protected:
     List<VarDecl*> *decls;
     List<Stmt*> *stmts;
-    
+
   public:
     StmtBlock(List<VarDecl*> *variableDeclarations, List<Stmt*> *statements);
     const char *GetPrintNameForNode() { return "StmtBlock"; }
