@@ -213,12 +213,22 @@ void CompoundExpr::PrintChildren(int indentLevel) {
 
 void ArithmeticExpr::CheckExpr() {
     //Post-order traversal
+    //
+
+    Type * ltype;
+    Type * rtype;
+
+    if(left != NULL && right != NULL)
+    {
     left->CheckExpr();
     right->CheckExpr();
 
-    Type * ltype = left->getType();
-    Type * rtype = right->getType();
+    ltype = left->getType();
+    rtype = right->getType();
+    }
 
+    if(ltype != NULL && rtype != NULL)
+    {
     if (!(ltype->IsNumeric() || ltype->IsError()))  {
         ReportError::IncompatibleOperand(op, ltype);
         left->setType(Type::errorType);
@@ -239,6 +249,7 @@ void ArithmeticExpr::CheckExpr() {
     }
 
     this->type = Type::errorType;
+    } 
 }
 
 void RelationalExpr::CheckExpr() { 
@@ -329,14 +340,17 @@ void AssignExpr::CheckExpr() {
     Type * rtype = right->getType();
 
     //If we have two matching valid types, we know we're error free
-    if (ltype->IsEquivalentTo(rtype))   {
+    if (ltype != NULL && ltype->IsEquivalentTo(rtype))   {
         this->type = ltype;
         return;
     }
 
+    if(ltype != NULL && rtype != NULL)
+    {
     if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
         ReportError::IncompatibleOperands(op, ltype, rtype);
     }
+    } 
     
     this->type = Type::errorType;
 }
