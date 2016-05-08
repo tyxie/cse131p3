@@ -41,7 +41,7 @@ class ExprError : public Expr
   public:
     ExprError() : Expr() { yyerror(this->GetPrintNameForNode()); }
     const char *GetPrintNameForNode() { return "ExprError"; }
-    void CheckExpr() {}
+    void CheckExpr() {this->type = Type::errorType;}
 };
 
 /* This node type is used for those places where an expression is optional.
@@ -51,7 +51,7 @@ class EmptyExpr : public Expr
 {
   public:
     const char *GetPrintNameForNode() { return "Empty"; }
-    void CheckExpr() {}
+    void CheckExpr() {this->type = Type::voidType;}
 };
 
 class IntConstant : public Expr 
