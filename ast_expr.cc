@@ -217,39 +217,76 @@ void ArithmeticExpr::CheckExpr() {
 
     Type * ltype;
     Type * rtype;
-
+    //Non-Unary Exprs
     if(left != NULL && right != NULL)
     {
-    left->CheckExpr();
-    right->CheckExpr();
+        left->CheckExpr();
+        right->CheckExpr();
 
-    ltype = left->getType();
-    rtype = right->getType();
+        ltype = left->getType();
+        rtype = right->getType();
+    
+
+        if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))  {
+            ReportError::IncompatibleOperand(op, ltype);
+            left->setType(Type::errorType);
+        }
+
+        if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix() || rtype->IsError()))  {
+            ReportError::IncompatibleOperand(op, rtype);
+            right->setType(Type::errorType);
+        }
+
+        //If we have two matching valid types, we know we're error free
+        if (ltype->IsEquivalentTo(rtype))   {
+            this->type = ltype;
+            return;
+        }
+        
+        //Otherwise we know this expr will be an errortype
+        if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+            ReportError::IncompatibleOperands(op, ltype, rtype);
+        }
+
+        this->type = Type::errorType;
     }
 
-    if(ltype != NULL && rtype != NULL)
-    {
-    if (!(ltype->IsNumeric() || ltype->IsError()))  {
-        ReportError::IncompatibleOperand(op, ltype);
-        left->setType(Type::errorType);
-    }
+    //Prefix Exprs
+    else if (left == NULL)  {
 
-    if (!(rtype->IsNumeric() || rtype->IsError()))  {
-        ReportError::IncompatibleOperand(op, rtype);
-        right->setType(Type::errorType);
-    }
-    //If we have two matching valid types, we know we're error free
-    if (ltype->IsEquivalentTo(rtype))   {
-        this->type = ltype;
-        return;
-    }
-    //Otherwise we know this expr will be an errortype
-    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
-        ReportError::IncompatibleOperands(op, ltype, rtype);
-    }
+        right->CheckExpr();
 
-    this->type = Type::errorType;
-    } 
+        rtype = right->getType();
+
+        if (rtype->IsError())   {
+            this->type = Type::errorType;
+        }
+        else if (rtype->IsEquivalentTo(Type::boolType) || rtype->IsEquivalentTo(Type::voidType))    {
+            ReportError::IncompatibleOperand(op, rtype);
+            this->type = Type::errorType;
+        }
+        else    {
+            this->type = rtype;
+        }
+    }
+    
+    else    {
+
+        left->CheckExpr();
+
+        ltype = left->getType();
+
+        if (ltype->IsError())   {
+            this->type = Type::errorType;
+        }
+        else if (ltype->IsEquivalentTo(Type::boolType) || ltype->IsEquivalentTo(Type::voidType))    {
+            ReportError::IncompatibleOperand(op, ltype);
+            this->type = Type::errorType;
+        }
+        else    {
+            this->type = ltype;
+        }
+    }
 }
 
 void RelationalExpr::CheckExpr() { 
