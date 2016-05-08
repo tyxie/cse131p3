@@ -501,3 +501,38 @@ void Call::PrintChildren(int indentLevel) {
    if (actuals) actuals->PrintAll(indentLevel+1, "(actuals) ");
 }
 
+void Call::CheckExpr()
+{
+  if(base != NULL)
+  {
+    base->CheckExpr(); 
+  } 
+
+  if(field != NULL)
+  {
+    vector<Decl*> matches = Node::symtab->findInAnyScope(field->GetName());
+
+ //   cout<<field->GetName()<<endl; 
+
+    for(vector<Decl*>::const_iterator it = matches.begin(); it != matches.end(); it++)    
+    {
+  //    cout<<"IN HERE"<<endl; 
+
+         if (FnDecl *fd = dynamic_cast<FnDecl*>(*it))
+	 { 
+           if(matches.size() == 1)
+           {
+	     if(fd->GetBody() != NULL)  
+             {
+               if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
+               {
+                 ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
+						this->actuals->NumElements()); 
+               } 
+             }
+           }
+	}
+    }
+  }
+}
+
