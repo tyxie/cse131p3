@@ -10,120 +10,9 @@
 #include "symtable.h"
 #include "errors.h"
 
-
 void Expr::CheckStmt()   {
     this->CheckExpr();
 }
-
-/*
-inline ExprError* ee(Expr* e)
-{
-  return dynamic_cast<ExprError*>(e); 
-}
-
-inline EmptyExpr* eme(Expr* e)
-{
-  return dynamic_cast<EmptyExpr*>(e); 
-}
-
-inline IntConstant* ic(Expr* e)
-{
-  return dynamic_cast<IntConstant*>(e);
-}
-
-inline FloatConstant* fc(Expr* e)
-{
-  return dynamic_cast<FloatConstant*>(e);
-}
-
-inline BoolConstant* bc(Expr* e)
-{
-  return dynamic_cast<BoolConstant*>(e); 
-}
-
-inline VarExpr* ve(Expr* e)
-{
-  return dynamic_cast<VarExpr*>(e);
-}
-
-inline CompoundExpr* ce(Expr* e)
-{
-  return dynamic_cast<CompoundExpr*>(e); 
-}
-
-inline ConditionalExpr* conde(Expr* e)
-{
-  return dynamic_cast<ConditionalExpr*>(e); 
-}
-
-inline LValue* lv(Expr* e)
-{
-  return dynamic_cast<LValue*>(e);
-}
-
-inline Call* call(Expr* e)
-{
-  return dynamic_cast<Call*>(e);
-}
-
-inline Expr::exprcast(Expr* e)
-{
-  if(ExprError *exprerror = ee(e))
-  {
-    return exprerror; 
-  }
-
-  else if(EmptyExpr *emptyexpr = eme(e))
-  {
-    return emptyexpr; 
-  }
-  else if(IntConstant *intconstant = ic(e))
-  {
-    return intconstant; 
-  }
-  else if(FloatConstant *floatconstant = fc(e))
-  {
-    return floatconstant; 
-  }
-  else if(BoolConstant *boolconstant = bc(e))
-  {
-    return boolconstant; 
-  }
-  else if(VarExpr* varexpr = ve(e))
-  {
-    return varexpr; 
-  }
-  else if(CompoundExpr* compoundexpr = ce(e))
-  {
-    return compoundexpr; 
-  }
-  else if(ConditionalExpr* condexpr = conde(e))
-  {
-    return condexpr; 
-  }
-  else if(LValue* lvalue = lv(e))
-  {
-    return lvalue; 
-  }
-  else if(Call* tcall = call(e))
-  {
-    return tcall; 
-  } 
-
-  return NULL; 
-}
-
-void Expr::CheckExpr(SymbolTable *st)
-{
-  exprcast(this) -> CheckExpr(st); 
-}
-
-
-Type* ExprError::CheckExpr()
-{
-  return Type::errorType;
-}*/ 
-
 
 IntConstant::IntConstant(yyltype loc, int val) : Expr(loc) {
     value = val;
@@ -154,7 +43,6 @@ VarExpr::VarExpr(yyltype loc, Identifier *ident) : Expr(loc) {
 void VarExpr::PrintChildren(int indentLevel) {
     id->Print(indentLevel+1);
 }
-
 
 void VarExpr::CheckExpr()   {
     vector<Decl*> matches = Node::symtab->findInAnyScope(this->id->GetName());
@@ -218,42 +106,105 @@ void ArithmeticExpr::CheckExpr() {
 
     Type * ltype = left->getType();
     Type * rtype = right->getType();
+
     if (!(ltype->IsNumeric() || ltype->IsError()))  {
         ReportError::IncompatibleOperand(op, ltype);
         left->setType(Type::errorType);
     }
+
     if (!(rtype->IsNumeric() || rtype->IsError()))  {
         ReportError::IncompatibleOperand(op, rtype);
         right->setType(Type::errorType);
     }
-    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
-        ReportError::IncompatibleOperands(op, ltype, rtype);
-        this->type = Type::errorType;
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = ltype;
         return;
     }
+    //Otherwise we know this expr will be an errortype
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
 
-    //Find the non-error type (if any)
-    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
-    if (expr_type == Type::intType) {
-        this->type = Type::intType;
-    }
-    else if (expr_type == Type::floatType)  {
-        this->type = Type::floatType;
-    }
-    else    {
-        this->type = Type::errorType;
-    }
+    this->type = Type::errorType;
 }
 
 void RelationalExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
 
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    if (!(ltype->IsNumeric() || ltype->IsError()))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        left->setType(Type::errorType);
+    }
+
+    if (!(rtype->IsNumeric() || rtype->IsError()))  {
+        ReportError::IncompatibleOperand(op, rtype);
+        right->setType(Type::errorType);
+    }
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = (ltype->IsEquivalentTo(Type::errorType)) ? Type::errorType : Type::boolType;
+        return;
+    }
+
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
+    
+    this->type = Type::errorType;
 }
 
 void EqualityExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
 
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = (ltype->IsEquivalentTo(Type::errorType)) ? Type::errorType : Type::boolType;
+        return;
+    }
+
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
+    }
+    
+    this->type = Type::errorType;
 }
 
 void LogicalExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
+    right->CheckExpr();
+
+    Type * ltype = left->getType();
+    Type * rtype = right->getType();
+
+    if (ltype->IsEquivalentTo(Type::boolType) && rtype->IsEquivalentTo(Type::boolType)) {
+        this->type = Type::boolType;
+        return;
+    }
+
+    if (!(ltype->IsConvertibleTo(Type::boolType)))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        left->setType(Type::errorType);
+    }
+
+    if (!(rtype->IsConvertibleTo(Type::boolType)))  {
+        ReportError::IncompatibleOperand(op, rtype);
+        right->setType(Type::errorType);
+    }
+
+    this->type = Type::errorType;
 
 }
 
@@ -264,23 +215,18 @@ void AssignExpr::CheckExpr() {
 
     Type * ltype = left->getType();
     Type * rtype = right->getType();
-    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
-        ReportError::IncompatibleOperands(op, ltype, rtype);
-        this->type = Type::errorType;
+
+    //If we have two matching valid types, we know we're error free
+    if (ltype->IsEquivalentTo(rtype))   {
+        this->type = ltype;
         return;
     }
 
-    //Find the non-error type (if any)
-    Type * expr_type = (ltype->IsEquivalentTo(Type::errorType)) ? rtype : ltype;
-    if (expr_type == Type::intType) {
-        this->type = Type::intType;
+    if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
+        ReportError::IncompatibleOperands(op, ltype, rtype);
     }
-    else if (expr_type == Type::floatType)  {
-        this->type = Type::floatType;
-    }
-    else    {
-        this->type = Type::errorType;
-    }
+    
+    this->type = Type::errorType;
 }
 
 void PostfixExpr::CheckExpr() { 
