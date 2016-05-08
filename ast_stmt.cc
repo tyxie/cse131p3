@@ -183,21 +183,20 @@ void ForStmt::CheckStmt()
 
   //TODO: test whether or not test is a boolean type if not throw error
   if(test != NULL)
-  {
+  { 
+    test -> CheckExpr();
     if(!test->getType()->IsEquivalentTo(Type::boolType))   
     {
       ReportError::TestNotBoolean(test); 
-    }  
-
-    test -> CheckExpr();
+    } 
   }
 
   if(step != NULL)
   {
-    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+/*    if(!test->getType()->IsEquivalentTo(Type::boolType))   
     {
       ReportError::TestNotBoolean(test); 
-    }  
+    }  */
 
     step -> CheckExpr(); 
   }
@@ -221,6 +220,10 @@ void WhileStmt::CheckStmt()
   if(test != NULL)
   {
     test -> CheckExpr(); 
+    if(!test->getType()->IsEquivalentTo(Type::boolType))   
+    {
+      ReportError::TestNotBoolean(test); 
+    } 
   }
 
   if(body != NULL)
@@ -242,13 +245,12 @@ void IfStmt::CheckStmt()
   Node::symtab->push();
 
   if(test != NULL)
-  {
+  {  
+    test -> CheckExpr(); 
     if(!test->getType()->IsEquivalentTo(Type::boolType))   
     {
       ReportError::TestNotBoolean(test); 
-    }    
- 
-    test -> CheckExpr(); 
+    }  
   }
   
   // TODO ADD the IFSTMT UNDER STMT as well  
@@ -273,7 +275,7 @@ void ReturnStmt::CheckStmt()
   {
     expr -> CheckExpr(); 
 
-    if(!expr->getType()->IsEquivalentTo(returnType->GetType()))
+    if(expr->getType() != NULL && !expr->getType()->IsEquivalentTo(returnType->GetType()))
     {
       ReportError::ReturnMismatch(this, expr->getType(), returnType->GetType());
     }

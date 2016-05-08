@@ -74,7 +74,7 @@ void FnDecl::CheckDecl()
     else
     {
       Node::needReturn = false; 
-      Node::returnType = NULL; 
+      Node::returnType = this; 
       //IT IS A VOID FUNCTION, CAN't HAVE RETURN VALUES; 
     }
   }
@@ -176,6 +176,11 @@ void FnDecl::CheckDecl(vector<Decl*> matches)    {
             ReportError::DeclConflict(this, *it);
             return;
            }
+        }
+        else if(VarDecl *varde = dynamic_cast<VarDecl*>(*it))
+        {
+            ReportError::DeclConflict(this, *it);
+            return;
         }
     }
     Node::symtab->addsym(this->id->GetName(), this);
