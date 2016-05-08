@@ -205,7 +205,7 @@ class ArrayAccess : public LValue
     ArrayAccess(yyltype loc, Expr *base, Expr *subscript);
     const char *GetPrintNameForNode() { return "ArrayAccess"; }
     void PrintChildren(int indentLevel);
-    void CheckExpr() {}
+    void CheckExpr();
 };
 
 /* Note that field access is used both for qualified names
