@@ -261,7 +261,7 @@ void ArithmeticExpr::CheckExpr() {
         if (rtype->IsError())   {
             this->type = Type::errorType;
         }
-        else if (rtype->IsEquivalentTo(Type::boolType) || rtype->IsEquivalentTo(Type::voidType))    {
+        else if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix() || rtype->IsError()))    {
             ReportError::IncompatibleOperand(op, rtype);
             this->type = Type::errorType;
         }
@@ -279,7 +279,7 @@ void ArithmeticExpr::CheckExpr() {
         if (ltype->IsError())   {
             this->type = Type::errorType;
         }
-        else if (ltype->IsEquivalentTo(Type::boolType) || ltype->IsEquivalentTo(Type::voidType))    {
+        else if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))     {
             ReportError::IncompatibleOperand(op, ltype);
             this->type = Type::errorType;
         }
