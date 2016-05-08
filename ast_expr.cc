@@ -547,6 +547,12 @@ void Call::CheckExpr()
   
   if(field != NULL)
   {
+
+    for(int y = 0; y < actuals->NumElements(); y++)
+    {
+      actuals->Nth(y)->CheckExpr(); 
+    }
+
     vector<Decl*> matches = Node::symtab->findInAnyScope(field->GetName());
     vector<FnDecl*> matchingFn;  
 
@@ -566,48 +572,28 @@ void Call::CheckExpr()
     {
         FnDecl *fd = matchingFn.back(); 
 
-	if(fd->GetBody() != NULL)  
+        if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
         {
-           if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
-           {
-              ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
+           ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
 						this->actuals->NumElements()); 
-           } 
-           else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
-           {
-              ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
+        } 
+        else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
+        {
+           ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
 						this->actuals->NumElements()); 
-           } 
-
         }
+        else
+        {
+          for(int x = 0; x < this->actuals->NumElements(); x++)
+          {
+            if(!fd->GetFormals()->Nth(x)->GetType()->IsEquivalentTo(this->actuals->Nth(x)->getType()))
+            {
+              ReportError::FormalsTypeMismatch(this->field, x, fd->GetFormals()->Nth(x)->GetType(), 
+						this->actuals->Nth(x)->getType()); 
+            }
+          }
+       }
     }
-    else
-    {
-  
-    }
-
-
-/*
-           found++; 
-           if(matches.size() == 1)
-           {
-	     if(fd->GetBody() != NULL)  
-             {
-               if(fd->GetFormals()->NumElements() < this->actuals->NumElements())
-               {
-                 ReportError::ExtraFormals(field, fd->GetFormals()->NumElements(), 
-						this->actuals->NumElements()); 
-               } 
-               else if(fd->GetFormals()->NumElements() > this->actuals->NumElements())
-               {
-                 ReportError::LessFormals(field, fd->GetFormals()->NumElements(), 
-						this->actuals->NumElements()); 
-               } 
-
-             }
-           }
-*/ 
-
   }
 }
 
