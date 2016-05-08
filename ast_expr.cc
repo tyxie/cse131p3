@@ -230,11 +230,42 @@ void AssignExpr::CheckExpr() {
 }
 
 void PostfixExpr::CheckExpr() { 
+    //Post-order traversal
+    left->CheckExpr();
 
+    Type * ltype = left->getType();
+
+    if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))  {
+        ReportError::IncompatibleOperand(op, ltype);
+        this->setType(Type::errorType);
+    }
+    else    {
+        this->type = ltype;
+    }
 }
 
 void ConditionalExpr::CheckExpr() { 
+    //Post-order traversal
+    cond->CheckExpr();
+    trueExpr->CheckExpr();
+    falseExpr->CheckExpr();
 
+    Type * ctype = cond->getType();
+    Type * ttype = trueExpr->getType();
+    Type * ftype = falseExpr->getType();
+
+    if (!(ctype->IsEquivalentTo(Type::boolType)))  {
+        ReportError::TestNotBoolean(cond);
+    }
+    //The TAs sais this would not be tested
+
+    //If we have two matching valid types, we know we're error free
+    if (ttype->IsEquivalentTo(ftype))   {
+        this->type = (ttype->IsEquivalentTo(Type::errorType)) ? Type::errorType : ttype;
+    }
+    else    {
+        this->type = Type::errorType;
+    }
 }
 
 ConditionalExpr::ConditionalExpr(Expr *c, Expr *t, Expr *f)
