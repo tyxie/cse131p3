@@ -373,15 +373,27 @@ void FieldAccess::CheckExpr()   {
 
 void ArrayAccess::CheckExpr()   {
     base->CheckExpr();
-    ArrayType* at = dynamic_cast<ArrayType*>(base->getType());
-    if (at == NULL) {
+    Type* btype = base->getType();
+    ArrayType* at = dynamic_cast<ArrayType*>(btype);
+    if (at == NULL && !(btype->IsMatrix())) {
         if (VarExpr* ve = dynamic_cast<VarExpr*>(base)) {
             ReportError::NotAnArray(ve->GetIdentifier());
             this->type = base->getType();
         }
     }
     else    {
-        this->type = at->GetElemType();
+        if (btype->IsEquivalentTo(Type::mat2Type))  {
+            this->type = Type::vec2Type;
+        }
+        else if (btype->IsEquivalentTo(Type::mat3Type))  {
+            this->type = Type::vec3Type;
+        }
+        else if (btype->IsEquivalentTo(Type::mat4Type))  {
+            this->type = Type::vec4Type;
+        }
+        else    {
+            this->type = at->GetElemType();
+        }
     }
 }
 
