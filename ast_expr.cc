@@ -476,7 +476,7 @@ void Call::CheckExpr()
 
     if(matchingFn.size() == 0)
     {
-      ReportError::NotAFunction(field); 
+      ReportError::IdentifierNotDeclared(this->field, LookingForFunction); 
       this->type = Type::errorType;
     }
     else if(matchingFn.size() == 1)
