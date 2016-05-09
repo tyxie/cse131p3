@@ -567,6 +567,7 @@ void Call::CheckExpr()
     if(matchingFn.size() == 0)
     {
       ReportError::NotAFunction(field); 
+      this->type = Type::errorType;
     }
     else if(matchingFn.size() == 1)
     {
@@ -593,6 +594,7 @@ void Call::CheckExpr()
             }
           }
        }
+       this->type = fd->GetType();
     }
   }
 }
