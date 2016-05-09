@@ -73,7 +73,7 @@ void FnDecl::CheckDecl()
   {
     if(!returnType->IsEquivalentTo(Type::voidType))
     {
-      Node::needReturn = true; 
+      Node::symtab->needReturn = true; 
       Node::returnType = this; 
      /* //signal a return is needed
       if(!hasReturn)
@@ -83,7 +83,7 @@ void FnDecl::CheckDecl()
     }
     else
     {
-      Node::needReturn = false; 
+      Node::symtab->needReturn = false; 
       Node::returnType = this; 
       //IT IS A VOID FUNCTION, CAN't HAVE RETURN VALUES; 
     }

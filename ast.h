@@ -64,13 +64,10 @@ class Node  {
     yyltype *GetLocation()   { return location; }
     void SetParent(Node *p)  { parent = p; }
     Node *GetParent()        { return parent; }
-    static int loops; 
-    static int switches;
-    static bool needReturn;
-    static FnDecl* returnType; 
 
     virtual const char *GetPrintNameForNode() = 0;
-    
+    static FnDecl *returnType;    
+ 
     // Print() is deliberately _not_ virtual
     // subclasses should override PrintChildren() instead
     void Print(int indentLevel, const char *label = NULL); 

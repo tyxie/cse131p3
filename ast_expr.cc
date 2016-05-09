@@ -485,10 +485,13 @@ void Call::CheckExpr()
         {
           for(int x = 0; x < this->actuals->NumElements(); x++)
           {
-            if(!fd->GetFormals()->Nth(x)->GetType()->IsEquivalentTo(this->actuals->Nth(x)->getType()))
+            if(!fd->GetFormals()->Nth(x)->GetType()->IsEquivalentTo(this->actuals->Nth(x)->getType()) &&
+              !this->actuals->Nth(x)->getType()->IsEquivalentTo(Type::errorType))
             {
-              ReportError::FormalsTypeMismatch(this->field, x, fd->GetFormals()->Nth(x)->GetType(), 
+              ReportError::FormalsTypeMismatch(this->field, x + 1, fd->GetFormals()->Nth(x)->GetType(), 
 						this->actuals->Nth(x)->getType()); 
+              this->actuals->Nth(x)->setType(Type::errorType); 
+              return;
             }
           }
        }
