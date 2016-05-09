@@ -120,13 +120,18 @@ void ArithmeticExpr::CheckExpr() {
             this->type = Type::errorType;
             return;
         }
+        
+        if (ltype->IsError() || rtype->IsError())   {
+            this->type = Type::errorType;
+            return;
+        }
 
-        if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))  {
+        if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix()))  {
             ReportError::IncompatibleOperand(op, ltype);
             this->setType(Type::errorType);
         }
         
-        if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix() || rtype->IsError()))  {
+        if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix()))  {
             ReportError::IncompatibleOperand(op, rtype);
             this->setType(Type::errorType);
         }
@@ -144,10 +149,7 @@ void ArithmeticExpr::CheckExpr() {
 
         rtype = right->getType();
 
-        if (rtype->IsError())   {
-            this->type = Type::errorType;
-        }
-        else if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix()))    {
+        if (!(rtype->IsNumeric() || rtype->IsVector() || rtype->IsMatrix() || rtype->IsError()))    {
             ReportError::IncompatibleOperand(op, rtype);
             this->type = Type::errorType;
         }
@@ -162,10 +164,7 @@ void ArithmeticExpr::CheckExpr() {
 
         ltype = left->getType();
 
-        if (ltype->IsError())   {
-            this->type = Type::errorType;
-        }
-        else if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix()))     {
+        if (!(ltype->IsNumeric() || ltype->IsVector() || ltype->IsMatrix() || ltype->IsError()))     {
             ReportError::IncompatibleOperand(op, ltype);
             this->type = Type::errorType;
         }
@@ -189,12 +188,17 @@ void RelationalExpr::CheckExpr() {
         return;
     }
 
-    if (!(ltype->IsNumeric() || ltype->IsError()))  {
+    if (ltype->IsError() || rtype->IsError())   {
+        this->type = Type::errorType;
+        return;
+    }
+
+    if (!(ltype->IsNumeric()))  {
         ReportError::IncompatibleOperand(op, ltype);
         this->setType(Type::errorType);
     }
 
-    if (!(rtype->IsNumeric() || rtype->IsError()))  {
+    if (!(rtype->IsNumeric()))  {
         ReportError::IncompatibleOperand(op, rtype);
         this->setType(Type::errorType);
     }
@@ -241,6 +245,11 @@ void LogicalExpr::CheckExpr() {
 
     if(!(ltype->IsConvertibleTo(rtype) || rtype->IsConvertibleTo(ltype)))    {
         ReportError::IncompatibleOperands(op, ltype, rtype);
+        this->type = Type::errorType;
+        return;
+    }
+
+    if (ltype->IsError() || rtype->IsError())   {
         this->type = Type::errorType;
         return;
     }
