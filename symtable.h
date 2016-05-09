@@ -19,8 +19,11 @@ class SymbolTable  {
     private:
         vector <map <string, Decl*> > scope_vector;
     public:
+        static int loops;
+        static int switches; 
         SymbolTable();
         void push();
+        static bool needReturn;
         map<string, Decl*> pop();
         map<string, Decl*> top() {return scope_vector.back();};
         void addsym(string id, Decl* node);

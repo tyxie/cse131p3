@@ -6,6 +6,10 @@
 
 using namespace std;
 
+  int SymbolTable::loops = 0;
+  int SymbolTable::switches = 0; 
+  bool SymbolTable::needReturn = false;
+
   SymbolTable::SymbolTable()    {
       this->push();
   }

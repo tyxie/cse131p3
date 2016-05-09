@@ -10,10 +10,7 @@
 #include <stdio.h>  // printf
 
 SymbolTable* Node::symtab = new SymbolTable();
-int Node::loops = 0;
-int Node::switches = 0;
-bool Node::needReturn = false; 
-FnDecl* Node::returnType = NULL;  
+FnDecl* Node::returnType = NULL; 
 
 Node::Node(yyltype loc) {
     location = new yyltype(loc);

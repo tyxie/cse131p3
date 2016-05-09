@@ -174,7 +174,7 @@ void LoopStmt::CheckStmt()
 void ForStmt::CheckStmt()
 {
   Node::symtab->push();
-  Node::loops++; 
+  Node::symtab->loops++; 
 
   if(init != NULL)
   {
@@ -206,7 +206,7 @@ void ForStmt::CheckStmt()
     body -> CheckStmt(); 
   }
 
-  Node::loops--;
+  Node::symtab->loops--;
   Node::symtab->pop(); 
 }
 
@@ -214,7 +214,7 @@ void WhileStmt::CheckStmt()
 {
 
   Node::symtab->push();
-  Node::loops++;
+  Node::symtab->loops++;
 
   //TODO: Check if test is of type boolean if not throw error
   if(test != NULL)
@@ -231,7 +231,7 @@ void WhileStmt::CheckStmt()
     body -> CheckStmt(); 
   }
 
-  Node::loops--;
+  Node::symtab->loops--;
   Node::symtab->pop(); 
 }
 /*
@@ -275,7 +275,9 @@ void ReturnStmt::CheckStmt()
   {
     expr -> CheckExpr(); 
 
-    if(expr->getType() != NULL && !expr->getType()->IsEquivalentTo(returnType->GetType()))
+    if(expr->getType() != NULL && !expr->getType()->IsEquivalentTo(returnType->GetType())
+       && !expr->getType()->IsEquivalentTo(Type::errorType))
+
     {
       ReportError::ReturnMismatch(this, expr->getType(), returnType->GetType());
     }
@@ -283,7 +285,7 @@ void ReturnStmt::CheckStmt()
   }
   else
   {
-    if(Node::needReturn)
+    if(Node::symtab->needReturn)
     {
        
        ReportError::ReturnMismatch(this, Type::voidType, returnType->GetType());     
@@ -296,7 +298,7 @@ void ReturnStmt::CheckStmt()
 void ContinueStmt::CheckStmt()
 {
   //check if inside the scope of a loop, if not throw outsideloop error
-  if(Node::loops == 0)
+  if(Node::symtab->loops == 0)
   {
     ReportError::ContinueOutsideLoop(this); 
   }
@@ -306,7 +308,7 @@ void ContinueStmt::CheckStmt()
 void BreakStmt::CheckStmt()
 {
   //check if inside the scope of a loop, if not throw outsideloop error	
-  if(Node::loops == 0 && Node::switches == 0)
+  if(Node::symtab->loops == 0 && Node::symtab->switches == 0)
   {
     ReportError::BreakOutsideLoop(this); 
   }
@@ -315,7 +317,7 @@ void BreakStmt::CheckStmt()
 void SwitchStmt::CheckStmt()
 {
   Node::symtab->push(); 
-  Node::switches++;
+  Node::symtab->switches++;
 
   if(expr != NULL)
   {
@@ -335,7 +337,7 @@ void SwitchStmt::CheckStmt()
     def -> CheckStmt(); 
   }
 
-  Node::switches--;
+  Node::symtab->switches--;
   Node::symtab->pop(); 
 }
 /*
@@ -410,7 +412,7 @@ void StmtBlock::CheckStmt() {
       }
     }
 
-    if(Node::needReturn && numReturns == 0)
+    if(Node::symtab->needReturn && numReturns == 0)
     {
       ReportError::ReturnMissing(Node::returnType);  
     }
